@@ -1,0 +1,239 @@
+/* General profile layout */
+.profile-page {
+    background-color: #f9f9f9;
+
+
+    /*font-family: 'sans-serif', Tahoma, Geneva, Verdana, sans-serif;*/
+  }
+  
+  .profile-container {
+    display: flex;
+    padding: 40px;
+    gap: 40px;
+  }
+  
+  /* Left side - Profile main area */
+  .profile-main {
+    flex: 3;
+    text-align: center;
+    background: #fff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Profile image styling */
+  .profile-pic {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    border: 4px solid #ff6868;
+  }
+  
+  /* Name, username and tagline */
+  .profile-main h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .username {
+    color: #777;
+    font-size: 16px;
+    margin-top: 4px;
+  }
+  
+  .tagline {
+    font-style: italic;
+    color: #999;
+    margin-top: 6px;
+  }
+  
+  /* Stats boxes */
+  .profile-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 25px 0;
+  }
+  
+  .profile-stats span {
+    background: #f1f1f1;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: bold;
+    color: #444;
+  }
+  
+  /* Recipes grid */
+  .user-recipes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+  }
+  
+  .user-recipe-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .user-recipe-card:hover {
+    transform: scale(1.03);
+  }
+  
+  .user-recipe-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+  
+  .recipe-info {
+    padding: 12px;
+    text-align: left;
+  }
+  
+  .recipe-info p {
+    margin: 0 0 5px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .recipe-info span {
+    display: inline-block;
+    margin-right: 10px;
+    color: #888;
+    font-size: 14px;
+  }
+  
+  .recipe-info i {
+    color: #ff6868;
+    margin-right: 5px;
+  }
+  
+  /* Right side - Subscriptions sidebar */
+  .profile-sidebar {
+    flex: 1;
+    background: #fff;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    height: fit-content;
+  }
+  
+  .profile-sidebar h3 {
+    margin-bottom: 20px;
+    color: #444;
+    font-size: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+  }
+  
+  .subscription-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .subscription-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 12px;
+    border: 2px solid #ccc;
+  }
+  
+  .subscription-item .username {
+    font-weight: 600;
+    color: #333;
+  }
+  /* Profile Page */
+/*.profile-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .profile-container {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }*/
+  
+  .subscriptions-section {
+    margin-top: 3rem;
+  }
+  
+  .subscriptions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .chef-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .chef-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+  }
+  
+  .chef-info {
+    flex: 1;
+  }
+  
+  .chef-bio {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+  }
+  
+  .chef-stats {
+    color: #ff8c42;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  .unsubscribe-btn {
+    margin-top: 1rem;
+    background: white;
+    color: #ff8c42;
+    border: 2px solid #ff8c42;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .unsubscribe-btn:hover {
+    background: #ff8c42;
+    color: white;
+  }
+  
+  .no-subscriptions {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
