@@ -37,16 +37,45 @@ const RecipeDetail = () => {
   ];
 
   const recipe = dummyRecipes.find(r => r.id === parseInt(id));
-  const [liked, setLiked] = useState(false);
-  const [likes, setLikes] = useState(recipe.likes);
-
+  const [liked, setLiked] = useState(() => {
+    const savedLikes = JSON.parse(localStorage.getItem('recipeLikes') || '{}');
+    return savedLikes[id] || false;
+  });
+  //const [liked, setLiked] = useState(false);
+  //const [likes, setLikes] = useState(recipe.likes);
+  const [likes, setLikes] = useState(() => {
+    const savedLikesCount = JSON.parse(localStorage.getItem('recipeLikesCount') || '{}');
+    return savedLikesCount[id] || recipe.likes;
+  });
   // Check subscription status on component mount
   useEffect(() => {
     const savedSubs = JSON.parse(localStorage.getItem('subscriptions')) || [];
     setIsSubscribed(savedSubs.some(chef => chef.id === recipeAuthor.id));
   }, [recipeAuthor.id]);
 
+
   const handleLikeClick = () => {
+    const savedLikes = JSON.parse(localStorage.getItem('recipeLikes') || '{}');
+    const newLikedState = !liked;
+    
+    // Update localStorage
+    localStorage.setItem('recipeLikes', JSON.stringify({
+      ...savedLikes,
+      [id]: newLikedState
+    }));
+  
+    // Update state
+    setLiked(newLikedState);
+    setLikes(prevLikes => newLikedState ? prevLikes + 1 : prevLikes - 1);
+  };
+  useEffect(() => {
+    const savedLikesCount = JSON.parse(localStorage.getItem('recipeLikesCount') || '{}');
+    localStorage.setItem('recipeLikesCount', JSON.stringify({
+      ...savedLikesCount,
+      [id]: likes
+    }));
+  }, [likes, id]);
+  /* const handleLikeClick = () => {
     if (liked) {
       setLiked(false);
       setLikes(prevLikes => prevLikes - 1);
@@ -54,7 +83,7 @@ const RecipeDetail = () => {
       setLiked(true);
       setLikes(prevLikes => prevLikes + 1);
     }
-  };
+  };*/
 
   // Timer functions
   const startTimer = () => {

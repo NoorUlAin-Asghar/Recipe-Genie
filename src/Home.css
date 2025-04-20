@@ -252,9 +252,12 @@
  
   /* Recipe Detail Page */
 .recipe-detail-page {
-    max-width: 800px; /* Reduced from 1200px for better focus */
-    margin: 0 auto;
-    padding: 20px;
+    /*max-width: 800px; /* Reduced from 1200px for better focus */
+    /*margin: 0 auto;
+    padding: 20px;*/
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
   
   .recipe-detail-container {
@@ -562,3 +565,4 @@
     color: #f66206;
     border: 2px solid #f66206;
   }
+ 

@@ -152,10 +152,9 @@ const Home = () => {
       {/* Hero Section with Background Image */}
       <section className="hero" style={{ backgroundImage: `url(${foodBg})` }}>
         <div className="hero-content">
-          <h1 className="hero-title">Explore your taste</h1>
+          <h1 className="hero-title">Explore Your Taste!</h1>
           <p className="hero-subtitle">
-            Fantastic food deserves a space that enhances its flavors, where every detail is crafted to delight and inspire.
-          </p>
+          Don't just wing it - dish it!. Find foolproof recipes in seconds and cook yourself a meal!          </p>
           <div className="search-container">
             <input 
               type="text" 

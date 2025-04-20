@@ -16,12 +16,15 @@ const Navbar = () => {
       {/* Navigation Links - Updated */}
       <div className="navbar-links">
         <Link to="/" className="navbar-link">Home</Link>
-        <Link to="/explore" className="navbar-link">Explore</Link>
+        <Link to="/chatbot" className="navbar-link">Chatbot</Link>
         <Link to="/Profile" className="navbar-link">Profile</Link>
-        <Link to="/contact" className="navbar-link">Contact</Link>
+        <Link to="/usersearch" className="navbar-link">User Search</Link>
         <Link to="/login" className="navbar-link login-link">Login</Link>
         <Link to="/register" className="navbar-link register-link">Register</Link>
-
+        <Link to="/sharerecipe" className="navbar-link">
+        
+           <i className="fas fa-plus"></i> Share Recipe
+        </Link>
       </div>
     </nav>
   );

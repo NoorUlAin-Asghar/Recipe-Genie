@@ -1,0 +1,155 @@
+
+ 
+.share-recipe-container {
+  width: 100%;
+  padding: 20px 0;
+  min-height: 100vh;
+  background: rgb(252, 249, 243);
+  text-align: center;
+}
+
+.share-recipe-form-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  margin: 0 auto;
+  
+}
+
+.share-recipe-form {
+  width: 30%;
+  min-width: 600px;
+  max-width:1200px;
+  padding: 30px;
+  background: rgb(255, 255, 255);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(221, 9, 9, 0.1);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Form group styling - ensures elements stay below headers */
+.share-recipe-form-group {
+  width: 100%;
+  margin: 0 auto 1.5rem;
+  display: block;
+
+}
+
+.share-recipe-form-group label {
+  display: block;
+  font-weight: 600;
+  color: #0c0501;
+  margin-bottom: 8px;
+  text-align: left; /* keep form labels/inputs aligned */
+
+}
+
+/* Input fields styling */
+.share-recipe-input,
+.share-recipe-textarea,
+.share-recipe-number,.share-recipe-list-input {
+  display: block;
+  width: 80%;
+  padding:12px;
+  padding: 12px;
+  border: 2px solid #edccaa;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+
+
+/* List items for ingredients/instructions */
+.share-recipe-list-item {
+ 
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+
+/* Button styles */
+.share-recipe-add-btn {
+  background: #ff8c42;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.share-recipe-remove-btn {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* Image preview */
+.share-recipe-image-preview {
+  max-width: 200px;
+  max-height: 200px;
+  margin-top: 15px;
+  border-radius: 4px;
+  display: block;
+}
+
+/* Form actions */
+.share-recipe-form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+  justify-content: center;
+}
+
+.share-recipe-submit-btn {
+  background: #f66206;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.share-recipe-submit-btn:hover {
+  background: #20c511;
+}
+.share-recipe-form h2 {
+  text-align: center; /* New line to center title */
+  margin-bottom: 30px; /* Added spacing */
+}
+.share-recipe-cancel-btn {
+  background: #f1f1f1;
+  color: #333;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.share-recipe-cancel-btn:hover {
+  background: #ddd;
+}
+
+/* Success message */
+.share-recipe-success {
+  text-align: center;
+  padding: 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
