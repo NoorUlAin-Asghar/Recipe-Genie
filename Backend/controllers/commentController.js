@@ -24,7 +24,7 @@ const createComment = async (req, res) => {
         console.log('Comment created successfully')
     } catch (error) {
         console.error('error creating comment: ',error);
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ error: 'Server error while updating comment' });
     }
 };
 
@@ -56,7 +56,7 @@ const deleteComment = async (req, res) => {
 
     } catch (error) {
         console.error('error deleting comment: ',error);
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ error: 'Server error while updating comment' });
     }
 };
 

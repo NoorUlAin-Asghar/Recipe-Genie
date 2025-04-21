@@ -14,7 +14,7 @@ const router=express.Router()
 router.get('/',getAllRecipes)
 
 //GET a single recipe (gets all detail + comments on the recipe
-router.get('/:id',getRecipe)
+router.get('/:recipeId',getRecipe)
 
 //GET recipe by title
 router.get('/search/by-title', getRecipeByTitle);
@@ -24,10 +24,10 @@ router.get('/search/by-title', getRecipeByTitle);
 router.post('/',createRecipe);
 
 //DELETE a single recipe
-router.delete('/:id',deleteRecipe)
+router.delete('/:recipeId',deleteRecipe)
 
 //UPDATE a single recipe
-router.patch('/:id',updateRecipe)
+router.patch('/:recipeId',updateRecipe)
 
 
 module.exports=router
