@@ -1,7 +1,7 @@
 /*import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/home';
 //import Login from './pages/login';
-//import Register from './pages/register'; // Add this import
+//import Register from './pages/register'; 
 
 
 function App() {
@@ -22,11 +22,12 @@ export default App;*/
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/home';
 import RecipeDetail from './pages/recipedetail';
-import Profile from './pages/Profile'; // or wherever you create it
+import Profile from './pages/Profile'; 
 import ShareRecipeForm from'./pages/sharerecipe';
+import PProfile from './pages/pprofile';
 import UserSearch from './pages/usersearch';
 //import Login from './pages/login';
-//import Register from './pages/register'; // Add this import
+//import Register from './pages/register'; 
 
 
 function App() {
@@ -39,6 +40,8 @@ function App() {
         <Route path="/Profile" element={<Profile />} />
         <Route path="/sharerecipe" element={<ShareRecipeForm />} />
         <Route path="/usersearch" element={<UserSearch />} />
+        <Route path="/pprofile/:userId" element={<PProfile />} />
+
         {/* Add other routes as needed */}
       </Routes>
     </BrowserRouter>

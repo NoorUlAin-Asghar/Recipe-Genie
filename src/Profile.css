@@ -90,6 +90,41 @@
     font-size: 14px;
     color: #666;
   }
+  .profile-pic-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .profile-upload {
+    margin-top: 10px;
+  }
+  
+  .profile-edit-input {
+    display: block;
+    margin: 8px auto;
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 70%;
+    max-width: 400px;
+  }
+  
+  .profile-edit-btn,
+  .profile-cancel-btn {
+    margin: 10px 5px;
+    padding: 8px 16px;
+    background-color: #f98d35;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .profile-cancel-btn {
+    background-color: #888;
+  }
   
   /* Recipes grid */
   /* Recipes section */
@@ -165,7 +200,7 @@
     background: #fff;
     padding: 25px;
     border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 20px 20px 20px rgba(5, 0, 0, 0.05);
     height: fit-content;
   }
   
@@ -178,9 +213,12 @@
   }
   
   .subscription-item {
+    cursor:pointer;
     display: flex;
     align-items: center;
     margin-bottom: 15px;
+    transition: background-color 0.2s ease;
+
   }
   
   .subscription-item img {
@@ -190,12 +228,38 @@
     border-radius: 50%;
     margin-right: 12px;
     border: 2px solid #ccc;
+    pointer-events: none; /* Makes image non-clickable */
+
   }
   
   .subscription-item .username {
+    pointer-events: none; /* Makes text non-clickable to ensure whole area works */
+
     font-weight: 600;
     color: #333;
   }
+/* New hover effect for clickable subscription items */
+
+
+  .subscription-item:hover {
+    background-color: rgba(249, 136, 8, 0.05); /* Light orange tint */
+  }   
+
+/* Prevent button hover from triggering item hover */
+  
+
+/* New click feedback animation */
+  .subscription-item:active {
+      transform: scale(0.98);
+  }
+
+/* Visual cue for clickable area */
+  .subscription-header {
+     pointer-events: none; /* Makes text non-clickable to ensure whole area works */
+  }
+
+
+
 
   .subscriptions-section {
     margin-top: 3rem;
@@ -254,7 +318,9 @@
   }
   
   .unsubscribe-btn:hover {
-    background: #ff8c42;
+    /*background-color: initial !important; */
+
+    background: #f66206;
     color: white;
   }
   
@@ -330,3 +396,4 @@
   max-height: 90vh;
   overflow-y: auto;
 }
+

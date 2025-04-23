@@ -50,7 +50,7 @@ const UserSearch = () => {
               <div 
                 key={user.id} 
                 className="user-result-card"
-                onClick={() => navigate(`/Profile/${user.username}`)}
+                onClick={() => navigate(`/pprofile/${user.username}`)}
               >
                 <img src={user.avatar} alt={user.name} className="user-avatar-image" />
                 <div className="user-details">

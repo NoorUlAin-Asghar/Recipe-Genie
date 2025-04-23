@@ -40,7 +40,7 @@
 .share-recipe-form-group label {
   display: block;
   font-weight: 600;
-  color: #0c0501;
+  color: #0a0a0a;
   margin-bottom: 8px;
   text-align: left; /* keep form labels/inputs aligned */
 
@@ -49,7 +49,7 @@
 /* Input fields styling */
 .share-recipe-input,
 .share-recipe-textarea,
-.share-recipe-number,.share-recipe-list-input {
+.share-recipe-number,.share-recipe-list-input,.share-recipe-servings {
   display: block;
   width: 80%;
   padding:12px;
@@ -84,7 +84,9 @@
   cursor: pointer;
   font-size: 1rem;
 }
-
+.share-recipe-add-btn:hover {
+  background:#df5d2e
+}
 .share-recipe-remove-btn {
   background: #ff6b6b;
   color: white;

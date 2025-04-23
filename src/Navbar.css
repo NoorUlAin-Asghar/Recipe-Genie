@@ -64,19 +64,21 @@
   .navbar-link:hover::after {
     width: 100%;
   }
-  /* Add this at the bottom */
   .login-link {
     color: #ff8c42 !important; /* Force orange color */
     font-weight: 600;
   }
   .register-link {
-    background-color: #ff8c42;
-    color: white !important;
-    padding: 8px 16px;
-    border-radius: 4px;
+    /*background-color: #ff8c42;
+    color: white !important;*/
+    color:#ff8c42;
+    padding: 8px 10px;
+    border-radius: 2px;
+    font-weight: 600;
+
     transition: background-color 0.3s;
   }
   
-  .register-link:hover {
+  /*.register-link:hover {
     background-color: #e67329;
-  }
+  }*/

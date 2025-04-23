@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'; 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/navbar';
@@ -13,6 +14,8 @@ const RecipeDetail = () => {
     elapsed: 0,
     totalDuration: 0
   });
+  const navigate = useNavigate();
+
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [recipeAuthor, setRecipeAuthor] = useState({
     id: 1,
@@ -203,8 +206,13 @@ const RecipeDetail = () => {
         </div>
 
         {/* Author Section with Subscribe Button */}
-        <div className="author-section">
-          <div className="author-info">
+                
+        {<div className="author-section">
+          <div 
+          className="author-info"
+          style={{ cursor: 'pointer' }} 
+          onClick={() => navigate(`/pprofile/${recipeAuthor.id}`)}
+          >
             <img src={recipeAuthor.avatar} alt={recipeAuthor.name} className="author-avatar" />
             <div>
               <h3>{recipeAuthor.name}</h3>
@@ -217,7 +225,7 @@ const RecipeDetail = () => {
           >
             {isSubscribed ? 'Subscribed' : 'Subscribe'}
           </button>
-        </div>
+        </div>}
 
         {/* Timer Section */}
         <div className="timer-section">

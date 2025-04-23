@@ -6,17 +6,21 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import ShareRecipeForm from './sharerecipe';
+import defaultProfilePic from '../assetss/images/di.jpg'; // add this image
+
 import '../Profile.css';
 import '../Home.css';
 
-const Profile = () => {
+const Profile = ({ user, onUpdate }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [updatedUser, setUpdatedUser] = useState({ ...user });
   const navigate = useNavigate();
   const [subscriptions, setSubscriptions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(null);
   const [editingRecipe, setEditingRecipe] = useState(null);
 
   // User profile data
-  const [user, setUser] = useState({
+  const [profile, setprofile] = useState({
     name: 'John Doe',
     username: 'johndoe123',
     tagline: 'Loves cooking & sharing tasty dishes 🌟',
@@ -44,9 +48,28 @@ const Profile = () => {
       const parsedSubs = JSON.parse(savedSubs);
       setSubscriptions(parsedSubs);
       // Update following count based on subscriptions
-      setUser(prev => ({ ...prev, following: parsedSubs.length }));
+      setprofile(prev => ({ ...prev, following: parsedSubs.length }));
     }
   }, []);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setUpdatedUser({ ...updatedUser, profileImage: URL.createObjectURL(file) });
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedUser({ ...updatedUser, [name]: value });
+  };
+
+  const handleSave = () => {
+    onUpdate(updatedUser); // optional callback if you want to save this
+    setIsEditing(false);
+  };
+
+
 
   // Handle new recipe submission from ShareRecipeForm
   const handleNewRecipe = (newRecipe) => {
@@ -57,7 +80,7 @@ const Profile = () => {
       time: parseInt(newRecipe.time),
     };
     
-    setUser(prev => ({
+    setprofile(prev => ({
       ...prev,
       recipes: [recipeWithId, ...prev.recipes],
       // Increment posts count
@@ -78,7 +101,7 @@ const Profile = () => {
 
   const handleDeleteRecipe = (recipeId, e) => {
     e.stopPropagation();
-    setUser(prev => ({
+    setprofile(prev => ({
       ...prev,
       recipes: prev.recipes.filter(recipe => recipe.id !== recipeId),
       // Decrement posts count
@@ -94,7 +117,7 @@ const Profile = () => {
   };
 
   const handleSaveRecipe = (updatedRecipe) => {
-    setUser(prev => ({
+    setprofile(prev => ({
       ...prev,
       recipes: prev.recipes.map(recipe => 
         recipe.id === updatedRecipe.id ? updatedRecipe : recipe
@@ -112,7 +135,7 @@ const Profile = () => {
     setSubscriptions(updatedSubs);
     localStorage.setItem('subscriptions', JSON.stringify(updatedSubs));
     // Decrease following count
-    setUser(prev => ({ ...prev, following: updatedSubs.length }));
+    setprofile(prev => ({ ...prev, following: updatedSubs.length }));
   };
 
   // Function to handle subscription (you'll call this when subscribing elsewhere)
@@ -121,7 +144,7 @@ const Profile = () => {
     setSubscriptions(updatedSubs);
     localStorage.setItem('subscriptions', JSON.stringify(updatedSubs));
     // Increase following count
-    setUser(prev => ({ ...prev, following: updatedSubs.length }));
+    setprofile(prev => ({ ...prev, following: updatedSubs.length }));
   };
 
   return (
@@ -129,7 +152,7 @@ const Profile = () => {
       <Navbar />
       <div className="profile-container">
         <div className="profile-main">
-          <div className="profile-header">
+          {/*<div className="profile-header">
             <img src={user.profileImage} alt="Profile" className="profile-pic" />
             <h2>{user.name}</h2>
             <p className="username">@{user.username}</p>
@@ -148,14 +171,95 @@ const Profile = () => {
                 <span>Following</span>
               </div>
             </div>
-          </div>
+          </div>*/}
+
+          <div className="profile-header">
+            <div className="profile-pic-wrapper">
+             <img
+                src={updatedUser.profileImage || defaultProfilePic}
+                alt="Profile"
+                className="profile-pic"
+             />
+              {isEditing && (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="profile-upload"
+               />
+              )}
+           </div>
+
+           {isEditing ? (
+             <>
+               <input
+                  type="text"
+                  name="name"
+                  value={updatedUser.name}
+                  onChange={handleChange}
+                  className="profile-edit-input"
+                  placeholder="name"
+               />
+                <input
+                  type="text"
+                  name="username"
+                  value={updatedUser.username}
+                  onChange={handleChange}
+
+                  className="profile-edit-input username"
+                  placeholder="username"
+
+               />
+                <input
+                  type="text"
+                  name="tagline"
+                  value={updatedUser.tagline}
+                  onChange={handleChange}
+                  className="profile-edit-input tagline"
+                  placeholder="Bio"
+               />
+             </>
+            ) : (
+              <>
+                <h2>{updatedUser.name}</h2>
+                <p className="username">@{updatedUser.username}</p>
+                <p className="tagline">{updatedUser.tagline}</p>
+             </>
+           )}
+
+            <div className="profile-stats">
+              <div className="stat-box">
+                <strong>{profile.recipes.length}</strong>
+                <span>Posts</span>
+             </div>
+              <div className="stat-box">
+                <strong>{profile.followers}</strong>
+                <span>Followers</span>
+             </div>
+             <div className="stat-box">
+               <strong>{profile.following}</strong>
+               <span>Following</span>
+             </div>
+           </div>
+
+           <button onClick={() => setIsEditing(!isEditing)} className="profile-edit-btn">
+              {isEditing ? 'Save Changes' : 'Edit Profile'}
+           </button>
+           {isEditing && (
+            <button onClick={() => setIsEditing(false)} className="profile-cancel-btn">
+              Cancel
+            </button>
+          )}
+      </div>
+
+
 
           <div className="user-recipes">
             <div className="recipes-title-box">
               <h3>My Recipes</h3>
             </div>
             <div className="recipes-grid">
-              {user.recipes.map(recipe => (
+              {profile.recipes.map(recipe => (
                 <div 
                   key={recipe.id} 
                   className="user-recipe-card"
@@ -197,32 +301,48 @@ const Profile = () => {
         </div>
 
         <div className="profile-sidebar">
-          <div className="sidebar-section">
-            <h3>Subscriptions</h3>
-            {subscriptions.length > 0 ? (
-              <div className="subscriptions-list">
-                {subscriptions.map(chef => (
-                  <div key={chef.id} className="subscription-item">
-                    <div className="subscription-header">
-                      <img src={chef.avatar} alt={chef.name} className="subscription-pic" />
-                      <div>
-                        <p className="subscription-name">{chef.name}</p>
-                        <p className="subscription-bio">{chef.bio}</p>
-                      </div>
+         <div className="sidebar-section">
+           <h3>Subscriptions</h3>
+           {subscriptions.length > 0 ? (
+             <div className="subscriptions-list">
+               {subscriptions.map(chef => (
+                <div 
+                  key={chef.id} 
+                  className="subscription-item"
+                  onClick={(e) => {
+              // Only navigate if the click wasn't on the unsubscribe button
+                    if (!e.target.closest('.unsubscribe-btn')) {
+                      navigate(`/pprofile/${chef.id}`);
+                    }
+                  }}
+                >
+                  <div className="subscription-header">
+                    <img 
+                      src={chef.avatar} 
+                      alt={chef.name} 
+                      className="subscription-pic" 
+                    />
+                    <div>
+                      <p className="subscription-name">{chef.name}</p>
+                      <p className="subscription-bio">{chef.bio}</p>
                     </div>
-                    <button 
-                      className="unsubscribe-btn"
-                      onClick={() => unsubscribe(chef.id)}
-                    >
-                      Unsubscribe
-                    </button>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="no-subscriptions">No subscriptions yet</p>
-            )}
-          </div>
+                  <button 
+                    className="unsubscribe-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      unsubscribe(chef.id);
+                    }}
+                  >
+                    Unsubscribe
+                  </button>
+               </div>
+              ))}
+           </div>
+          ) : (
+            <p className="no-subscriptions">No subscriptions yet</p>
+          )}
+         </div>
         </div>
       </div>
 

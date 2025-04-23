@@ -33,7 +33,7 @@
 .user-search-input {
   width: 100%;
   padding: 12px 50px 12px 20px;
-  border: 2px solid #f4e0ca;
+  border: 2px solid #f1e8de;/*border of search box*/
   border-radius: 25px;
   font-size: 1rem;
   outline: none;
@@ -65,7 +65,7 @@
 }
 
 .user-search-button:hover {
-  background: #fbfbf9;
+  background: #dddd04;
 }
 
 .user-search-icon {

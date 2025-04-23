@@ -150,7 +150,19 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
             required
           />
         </div>
-        
+
+        <div className="share-recipe-form-group">
+          <label>Servings</label>
+          <input
+            type="text"
+            name="servings"
+            className="share-recipe-servings"
+
+            value={recipe.servings}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <div className="share-recipe-form-group">
           <label>Description</label>
           <textarea
@@ -162,6 +174,19 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
             required
           />
         </div>
+        
+        
+        {/*<div className="share-recipe-form-group">
+          <label>Servings</label>
+          <textarea
+            name="Servings"
+            className="share-recipe-textarea"
+
+            value={recipe.servings}
+            onChange={handleChange}
+            required
+          />
+        </div>*/}
         
         <div className="share-recipe-form-group">
           <label>Cooking Time (minutes)</label>
@@ -184,6 +209,7 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
               <input
                 type="text"
                 className="share-recipe-list-input"
+                placeholder="ingredient        ,     quanity"
 
                 value={ingredient}
                 onChange={(e) => handleIngredientChange(index, e.target.value)}
