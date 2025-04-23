@@ -1,0 +1,120 @@
+/* Main page container - keeps original layout */
+.user-search-page {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: #faf7f4fa; /* Light grey background for entire page */
+}
+
+/* Container for the grey box - centers content */
+.user-search-container {
+  background-color: #faf3eafa; /* Grey background color */
+  border-radius: 10px; /* Rounded corners */
+  padding: 20px; /* Inner spacing */
+  margin: 30px auto; /* Centering with top/bottom margin */
+  max-width: 800px; /* Same as original content width */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+/* Original content styles - kept exactly the same */
+.user-search-content {
+  max-width: 800px;
+  margin: 0 auto; /* Removed top margin since container handles it */
+  padding: 0 20px;
+}
+
+/* Search Bar Styles - kept original styles */
+.user-search-bar-container {
+  position: relative;
+  width: 90%;
+  margin-bottom: 30px;
+}
+
+.user-search-input {
+  width: 100%;
+  padding: 12px 50px 12px 20px;
+  border: 2px solid #f1e8de;/*border of search box*/
+  border-radius: 25px;
+  font-size: 1rem;
+  outline: none;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.user-search-input:focus {
+  border-color: #110e0b;
+  box-shadow: 0 2px 10px rgba(86, 85, 87, 0.2);
+}
+
+.user-search-button {
+  position: absolute;
+  right: -73px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ff8d46;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius:80%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+  padding: 0;
+}
+
+.user-search-button:hover {
+  background: #dddd04;
+}
+
+.user-search-icon {
+  color: white;
+  font-size: 0.8rem;
+  display:block;
+}
+
+/* User Results Styles - kept original */
+.user-results-container {
+  margin-top: 20px;
+}
+
+.user-result-card {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.user-result-card:hover {
+  transform: translateY(-3px);
+}
+
+.user-avatar-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+.user-details {
+  flex: 1;
+}
+
+.user-display-name {
+  margin: 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.user-username {
+  margin: 5px 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
