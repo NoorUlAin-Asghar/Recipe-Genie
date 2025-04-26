@@ -4,6 +4,8 @@ const mongoose=require('mongoose')
 const recipeRoutes=require('./routes/recipeRoutes')
 const commentRoutes=require('./routes/commentRoutes')
 const userRoutes=require('./routes/userRoutes')
+const authRoutes=require('./routes/authRoutes')
+
 
 //express app
 const app=express()
@@ -29,6 +31,7 @@ mongoose.connect(process.env.MONGO_URI)
 })
 
 //routes
+app.use('/', authRoutes)
 app.use('/recipes',recipeRoutes)
 app.use('/recipes/:recipeId/comments',commentRoutes)
 app.use('/users',userRoutes)

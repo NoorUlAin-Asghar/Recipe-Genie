@@ -5,7 +5,7 @@ const mongoose=require('mongoose')
 
 //CREATE a new comment
 const createComment = async (req, res) => {
-    const { author, text } = req.body;
+    const {text } = req.body;
     const { recipeId } = req.params; // Get recipeId from the URL
     if (!mongoose.Types.ObjectId.isValid(recipeId)) {
         console.error('Incorrect Id');
@@ -13,7 +13,7 @@ const createComment = async (req, res) => {
     }
   
     try {
-        const comment = await Comment.create({ author, text, recipeId: recipeId });
+        const comment = await Comment.create({  author: req.userId, text, recipeId: recipeId });
     
         // Add this comment's ID to the Recipe
         await Recipe.findByIdAndUpdate(recipeId, {

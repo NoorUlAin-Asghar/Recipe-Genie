@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import {registerUser} from '../api';
 import '../register.css'; // We'll create this CSS file
 
 const Register = () => {
@@ -33,6 +33,9 @@ const Register = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name) newErrors.name = 'Name is required';
+    if (!/^(?=.*[A-Z])(?=.*_).{6,}$/.test(formData.username)) {
+      newErrors.username = 'Username must be at least 6 characters long, contain 1 underscore (_) and 1 capital letter.';
+    }
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.password) newErrors.password = 'Password is required';
     if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
@@ -52,14 +55,12 @@ const Register = () => {
 
     try {
       // Replace with your actual API endpoint
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password
-      });
+      const response = await registerUser(formData);
+      // Save token and redirect (adjust based on your auth flow)
+      localStorage.setItem('user', JSON.stringify(response));
       
       // On successful registration, redirect to login
-      navigate('/login', { state: { registered: true } });
+      navigate('/home', { replace: true,state: { registered: true } });
     } catch (error) {
       setRegisterError(error.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
@@ -95,6 +96,20 @@ const Register = () => {
               placeholder="John Doe"
             />
             {errors.name && <span className="error-message">{errors.name}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="username" className="form-label">User Name</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className={`form-input ${errors.username ? 'input-error' : ''}`}
+              placeholder="john_12Doe"
+            />
+            {errors.username && <span className="error-message">{errors.username}</span>}
           </div>
 
           <div className="form-group">
