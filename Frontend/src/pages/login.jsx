@@ -1,48 +1,8 @@
-/*import React from 'react';
-import { Link } from 'react-router-dom';
-
-const Login = () => {
-  return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      background: '#fff8f0'
-    }}>
-      <div style={{
-        background: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <h2 style={{ color: '#ff8c42', textAlign: 'center' }}>Login</h2>
-        {/* Add your form here later */  /*}
-        <Link 
-          to="/" 
-          style={{
-            display: 'block',
-            textAlign: 'center',
-            color: '#ff8c42',
-            marginTop: '1rem'
-          }}
-        >
-          Back to Home
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-export default Login;*/
-
-
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { loginUser } from '../api';
 import '../login.css'; // We'll create this CSS file
+import '../loading.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -52,7 +12,22 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  
   const navigate = useNavigate();
+
+  // Check for existing user on mount
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user?.data?.token) {
+      setIsRedirecting(true);
+      const timer = setTimeout(() => {
+        navigate('/home', { replace: true });
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,18 +64,36 @@ const Login = () => {
 
     try {
       // Replace with your actual API endpoint
-      const response = await axios.post('https://your-api.com/login', formData);
+      const response = await loginUser(formData);
       
+      console.log("user logged in: ",response)
       // Save token and redirect (adjust based on your auth flow)
-      localStorage.setItem('authToken', response.data.token);
-      navigate('/');
+      localStorage.setItem('user', JSON.stringify(response));
+      navigate('/home', {replace: true, state:{login: true}});
     } catch (error) {
       setLoginError(error.response?.data?.message || 'Login failed. Please try again.');
+      console.error(error)
     } finally {
       setIsLoading(false);
     }
   };
-
+  if (isRedirecting) {
+    return (
+      <div className="redirect-screen">
+        <div className="redirect-card">
+          <img 
+            src={require('../assetss/images/logo.jpg')} 
+            alt="Logo" 
+            className="redirect-logo"
+          />
+          <h2>Welcome Back!</h2>
+          <h3>Already Signed In</h3>
+          <p>Taking you to your recipes...</p>
+          <div className="redirect-spinner"></div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="login-container">
       <div className="login-card">

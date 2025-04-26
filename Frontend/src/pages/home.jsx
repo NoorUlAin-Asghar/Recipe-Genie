@@ -1,70 +1,4 @@
-/*import React from 'react';
-import Navbar from '../components/navbar';
-import foodBg from '../assetss/images/food.png'; // Background imagea
-import chicken from '../assetss/images/chicken.png'; // Recipe images
-import biryani from '../assetss/images/biryani.png';
-import dosa from '../assetss/images/dosa.png';
-import paneer from '../assetss/images/paneer.png';
-import '../Home.css';
-import { Link } from 'react-router-dom'; // Add this import at the top
-
-
-const Home = () => {
-  const popularRecipes = [
-    { name: 'Chicken', likes: 100, image: chicken },
-    { name: 'Biryani', likes: 120, image: biryani },
-    { name: 'Masala Dosa', likes: 85, image: dosa },
-    { name: 'Paneer Tikka', likes: 95, image: paneer },
-  ];
-
-  return (
-    <div className="home-page">
-      <Navbar />
-      
-      {}
-      <section className="hero" style={{ backgroundImage: `url(${foodBg})` }}>
-        <div className="hero-content">
-          <h1 className="hero-title">Explore your taste</h1>
-          <p className="hero-subtitle">
-            Fantastic food deserves a space that enhances its flavors, where every detail is crafted to delight and inspire.
-          </p>
-          <div className="search-container">
-            <input 
-              type="text" 
-              placeholder="Search Recipes..." 
-              className="search-input"
-            />
-            <button className="search-button">
-              <i className="fas fa-search"></i>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {}
-      <section className="recipes">
-        <h2 className="section-title">Popular Recipes</h2>
-        <p className="section-subtitle">
-          Follow our popular recipes and make your own Finger lickin' Food
-        </p>
-        <div className="recipe-grid">
-          {popularRecipes.map((recipe, index) => (
-            <div key={index} className="recipe-card">
-              <img src={recipe.image} alt={recipe.name} className="recipe-image" />
-              <div className="recipe-content">
-                <h3 className="recipe-title">{recipe.name}</h3>
-                <p className="recipe-likes">{recipe.likes} likes</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-};
-
-export default Home;*/
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/navbar';
 import foodBg from '../assetss/images/food.png';
 import chicken from '../assetss/images/chh.jpg';
@@ -72,7 +6,9 @@ import biryani from '../assetss/images/bir.jpeg';
 import dosa from '../assetss/images/dd.jpg';
 import paneer from '../assetss/images/tt.jpg';
 import '../Home.css';
+import '../popup.css'; // We'll create this CSS file
 import { Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Home = () => {
   // Enhanced recipe data with IDs and details for the detail page
@@ -144,11 +80,62 @@ const Home = () => {
   const totalPages = Math.ceil(searchResults.length / recipesPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [popupConfig, setPopupConfig] = useState(null);
+  
+  useEffect(() => {
+    console.log("Location state:", location.state);
+  }, [location]);
+
+  useEffect(() => {
+    const login = location.state?.login;
+    const registered = location.state?.registered;
+  
+    if (login || registered) {
+      const newPopup = login
+        ? {
+            icon: "👋",
+            title: "Logged In!",
+            message: "Welcome back to Recipe Genie!"
+          }
+        : {
+            icon: "🎉",
+            title: "Registration Successful!",
+            message: "Welcome to Recipe Genie! Start exploring delicious recipes."
+          };
+          setPopupConfig(newPopup);
+          const timer = setTimeout(() => {
+            setPopupConfig(null);
+          }, 2000); // 2 seconds
+     
+      // Clear the state so it doesn't trigger again on navbar click
+      navigate(location.pathname, { replace: true, state: {} });
+      
+    }
+  }, [location, navigate]);
+
+  const closePopup = () => {
+    setPopupConfig(null);
+  };
 
   return (
     <div className="home-page">
       <Navbar />
-      
+      {popupConfig && (
+      <div className="popup-overlay">
+        <div className="popup-container">
+          <div className="popup-content">
+            <span className="close-btn" onClick={closePopup}>&times;</span>
+            <div className="popup-icon">{popupConfig.icon}</div>
+            <h3>{popupConfig.title}</h3>
+            <p>{popupConfig.message}</p>
+          </div>
+        </div>
+      </div>
+    )}
+
       {/* Hero Section with Background Image */}
       <section className="hero" style={{ backgroundImage: `url(${foodBg})` }}>
         <div className="hero-content">
