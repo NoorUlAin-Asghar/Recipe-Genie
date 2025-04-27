@@ -5,8 +5,10 @@ const mongoose=require('mongoose')
 
 //GET all recipes
 const getAllRecipes= async(req,res)=>{
+    console.log('get all my recipes')
+    const userId=req.user._id
     try {
-        const recipes = await Recipe.find({})
+        const recipes = await Recipe.find({author:userId})
           .sort({ createdAt: -1 })
           .select('title likes cookTime') // Only select these fields
         
@@ -72,10 +74,10 @@ const getRecipeByTitle = async (req, res) => {
   
     try {
         const recipes = await Recipe.find({
-            title: { $regex: new RegExp(`\\b${title}\\b`, 'i') } // 'i' makes it case-insensitive
+            title: { $regex: new RegExp(`(^|\\s)${title}`, 'i')} // 'i' makes it case-insensitive
         })
         .sort({createdAt: -1})
-        .select('title likes cookTime'); // Only select these fields
+        .select('title likes cookTime image'); // Only select these fields
         if(!recipes || recipes.length===0){
             console.log('no recipe exists by title',title);
             return res.status(404).json({error: 'No such recipe'});
@@ -85,7 +87,8 @@ const getRecipeByTitle = async (req, res) => {
                 _id: recipe._id,
                 title: recipe.title,
                 cookTime: recipe.cookTime,
-                likesCount: recipe.likes.length
+                likesCount: recipe.likes.length,
+                image:recipe.image
               }));
         
             res.status(200).json(formattedRecipes);
@@ -97,13 +100,64 @@ const getRecipeByTitle = async (req, res) => {
     }
 };
 
+//GET top 10 recipes
+const getPopularRecipes = async (req, res) => {
+    console.log('get popular recipes')
+    try {
+      const popularRecipes = await Recipe.aggregate([
+        {
+          $addFields: {
+            likesCount: { $size: "$likes" } // Convert likes array to count
+          }
+        },
+        { $sort: { likesCount: -1 } },     // Sort by likes (descending)
+        { $limit: 10 },                     // Get only top 10
+        {
+          $project: {                       // Shape the response
+            title: 1,
+            image: 1,
+            cookTime: 1,
+            likesCount: 1
+          }
+        }
+      ]);
+      if (!popularRecipes){
+            console.log('no recipe exists by title',title);
+            return res.status(404).json({error: 'No recipes'});
+      }
+  
+      res.status(200).json(popularRecipes);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch top recipes" });
+    }
+  };
+
 //CREATE a new recipe
 const createRecipe = async (req,res)=>{
-    const {title,author,ingredients,instructions}=req.body;
+    console.log("creating recipe",req.body)
+    const userId=req.user._id
+    const { 
+        name: title, // Map 'name' from frontend to 'title' in backend
+        description, 
+        time: cookTime, // Map 'time' to 'cookTime'
+        serving,
+        ingredients, 
+        instructions
+    } = req.body;
+
     
     //add recipe to DB
     try {
-        const newRecipe=await Recipe.create({title,author,ingredients,instructions}) ;
+        const newRecipe = await Recipe.create({
+            title,
+            author: userId,
+            description,
+            cookTime,
+            serving,
+            ingredients: JSON.parse(ingredients), // Parse the stringified array
+            instructions: JSON.parse(instructions), // Parse the stringified array
+            image: req.file?.path // File path if uploaded
+        });
         res.status(201).json(newRecipe);
         console.log('Created recipe successfully',newRecipe);
     }catch(error){
@@ -172,6 +226,7 @@ module.exports={
     getAllRecipes,
     getRecipe,
     getRecipeByTitle,
+    getPopularRecipes,
     deleteRecipe,
     updateRecipe
 }

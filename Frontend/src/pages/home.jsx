@@ -1,77 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/navbar';
 import foodBg from '../assetss/images/food.png';
-import chicken from '../assetss/images/chh.jpg';
-import biryani from '../assetss/images/bir.jpeg';
-import dosa from '../assetss/images/dd.jpg';
-import paneer from '../assetss/images/tt.jpg';
+import logo from '../assetss/images/logo.jpg'; // Import at top of file
 import '../Home.css';
 import '../popup.css'; // We'll create this CSS file
 import { Link } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getPopularRecipes, searchRecipe } from '../api';
 
 const Home = () => {
   // Enhanced recipe data with IDs and details for the detail page
-  const allRecipes = [
-    { 
-      id: 1, 
-      name: 'Chicken Curry', 
-      likes: 100, 
-      time: 30,
-      image: chicken,
-      description: 'Delicious spicy chicken curry with aromatic spices',
-      ingredients: ['Chicken', 'Onion', 'Tomato', 'Ginger', 'Garlic', 'Spices'],
-      instructions: ['Marinate chicken', 'Sauté onions', 'Add tomatoes', 'Cook with spices']
-    },
-    { 
-      id: 2, 
-      name: 'Vegetable Biryani', 
-      likes: 120, 
-      time: 45,
-      image: biryani,
-      description: 'Fragrant rice dish with mixed vegetables',
-      ingredients: ['Basmati rice', 'Mixed vegetables', 'Yogurt', 'Biryani masala'],
-      instructions: ['Soak rice', 'Layer vegetables and rice', 'Cook on dum']
-    },
-    { 
-      id: 3, 
-      name: 'Masala Dosa', 
-      likes: 85, 
-      time: 25,
-      image: dosa,
-      description: 'Crispy crepe with spiced potato filling',
-      ingredients: ['Rice flour', 'Urad dal', 'Potatoes', 'Spices'],
-      instructions: ['Make batter', 'Ferment overnight', 'Spread on griddle', 'Add filling']
-    },
-    { 
-      id: 4, 
-      name: 'Paneer Tikka', 
-      likes: 95, 
-      time: 35,
-      image: paneer,
-      description: 'Grilled cottage cheese skewers',
-      ingredients: ['Paneer', 'Bell peppers', 'Yogurt', 'Tandoori masala'],
-      instructions: ['Marinate paneer', 'Skewer with veggies', 'Grill until charred']
-    },
-  ];
-
+  const [allRecipes, setAllRecipes] = useState([]); // Initialize as empty array
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const recipesPerPage = 4;
 
-  const handleSearch = () => {
+  useEffect(() => {
+    const fetchAllRecipes = async () => {
+      try {
+        const response = await getPopularRecipes();
+         // Transform API response to match your component's expected format
+        const formattedRecipes = response.data.map(recipe => ({
+          id: recipe._id, // Map _id to id
+          name: recipe.title, // Map title to name
+          likes: recipe.likesCount, // Use likesCount from API
+          time: recipe.cookTime, // Map cookTime to time
+          image: recipe.image, // Keep image as is
+        }));
+        setAllRecipes(formattedRecipes);
+      } catch (error) {
+        console.error('Failed to fetch recipes:', error);
+      }
+    };
+    
+    fetchAllRecipes();
+  }, []);
+  
+  const handleSearch = async () => {
     if (searchTerm.trim() === '') {
       setSearchResults([]);
       setCurrentPage(1);
       return;
     }
-    const results = allRecipes.filter(recipe =>
-      recipe.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setSearchResults(results);
-    setCurrentPage(1); // Reset to first page on new search
+    try {
+      const response = await searchRecipe(searchTerm);
+      const formattedRecipes = response.data.map(recipe => ({
+        id: recipe._id,
+        name: recipe.title,
+        likes: recipe.likesCount,
+        time: recipe.cookTime,
+        image: recipe.image
+      }));
+      setSearchResults(formattedRecipes);
+      setCurrentPage(1);
+    } catch (error) {
+      console.error("Search failed:", error);
+      setSearchResults([]);
+    }
   };
+
+   
 
   // Get current recipes for pagination
   const indexOfLastRecipe = currentPage * recipesPerPage;
@@ -169,7 +158,15 @@ const Home = () => {
             {currentRecipes.map((recipe) => (
               <Link to={`/recipe/${recipe.id}`} key={recipe.id} className="recipe-card-link">
                 <div className="recipe-card">
-                  <img src={recipe.image} alt={recipe.name} className="recipe-image" />
+                  <img  src={recipe.image} 
+                        alt={recipe.name}
+                        className="recipe-image"
+                        onError={(e) => {
+                          e.target.onerror = null; // Prevent infinite loop if fallback fails
+                          e.target.src = logo;
+                          e.target.style.objectFit = 'contain'; // Adjust styling for logo
+                        }} 
+                  />
                   <div className="recipe-content">
                     <h3 className="recipe-title">{recipe.name}</h3>
                     <div className="recipe-meta">
@@ -221,7 +218,15 @@ const Home = () => {
             {allRecipes.map((recipe) => (
               <Link to={`/recipe/${recipe.id}`} key={recipe.id} className="recipe-card-link">
                 <div className="recipe-card">
-                  <img src={recipe.image} alt={recipe.name} className="recipe-image" />
+                  <img  src={recipe.image} 
+                        alt={recipe.name}
+                        className="recipe-image"
+                        onError={(e) => {
+                          e.target.onerror = null; // Prevent infinite loop if fallback fails
+                          e.target.src = logo;
+                          e.target.style.objectFit = 'contain'; // Adjust styling for logo
+                        }} 
+                  />
                   <div className="recipe-content">
                     <h3 className="recipe-title">{recipe.name}</h3>
                     <div className="recipe-meta">

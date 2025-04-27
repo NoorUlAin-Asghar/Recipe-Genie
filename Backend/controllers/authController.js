@@ -8,7 +8,7 @@ const validator =require('validator')
 const SECRET = process.env.JWT_SECRET;
 
 const createToken=(_id)=>{
-  return jwt.sign({ _id }, SECRET, { expiresIn: '1h' });
+  return jwt.sign({ _id }, SECRET, { expiresIn: '5h' });
 }
 
 // Register a new user

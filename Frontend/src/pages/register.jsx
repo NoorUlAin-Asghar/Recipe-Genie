@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {registerUser} from '../api';
+import ProtectRoute from '../components/protectRoute'; // Adjust path if needed
 import '../register.css'; // We'll create this CSS file
 
 const Register = () => {
@@ -69,6 +70,8 @@ const Register = () => {
   };
 
   return (
+    <>
+    <ProtectRoute /> 
     <div className="register-container">
       <div className="register-card">
         <div className="register-header">
@@ -171,6 +174,7 @@ const Register = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

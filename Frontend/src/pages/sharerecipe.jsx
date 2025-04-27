@@ -1,8 +1,7 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
+import {createRecipe, updateRecipe} from '../api'
 import '../sharerecipe.css';
 
 const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit }) => {
@@ -11,6 +10,7 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
     name: '',
     description: '',
     time: '',
+    serving: '',
     ingredients: [''],
     instructions: [''],
     image: null,
@@ -104,10 +104,39 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
     };
 
     try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const token = user?.data?.token;
+  
+      if (!token) {
+        console.error('No token found. Please login again.');
+        return;
+      }
+      const formData = new FormData();
+      formData.append('name', recipeToSave.name);
+      formData.append('description', recipeToSave.description);
+      formData.append('time', recipeToSave.time);
+      formData.append('serving', recipeToSave.serving);
+      formData.append('ingredients', JSON.stringify(recipeToSave.ingredients));
+      formData.append('instructions', JSON.stringify(recipeToSave.instructions));
+      if (recipeToSave.image) {
+        formData.append('image', recipeToSave.image);
+      }
       if (isEditing) {
-        await onSave(recipeToSave);
-      } else {
-        await onSubmit?.(recipeToSave);
+        const recipeId = initialRecipe._id; // initialRecipe._id depending on your backend
+        const response = await updateRecipe(formData,recipeId);
+        console.log(response);
+        if (!response.data) {
+          throw new Error('Updating recipe failed');
+        }
+        //await onSave(recipeToSave);
+      } 
+      else {
+        const response = await createRecipe(formData);
+        console.log(response);
+        if (!response.data) {
+          throw new Error('Creating recipe failed');
+        }
+        //await onSubmit?.(recipeToSave);
       }
       setIsSubmitted(true);
     } catch (error) {
@@ -152,17 +181,19 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
         </div>
 
         <div className="share-recipe-form-group">
-          <label>Servings</label>
+          <label>Serving</label>
           <input
-            type="text"
-            name="servings"
+            type="number"
+            name="serving"
             className="share-recipe-servings"
 
-            value={recipe.servings}
+            value={recipe.serving}
             onChange={handleChange}
+            min="1"
             required
           />
         </div>
+        
         <div className="share-recipe-form-group">
           <label>Description</label>
           <textarea
@@ -174,19 +205,6 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
             required
           />
         </div>
-        
-        
-        {/*<div className="share-recipe-form-group">
-          <label>Servings</label>
-          <textarea
-            name="Servings"
-            className="share-recipe-textarea"
-
-            value={recipe.servings}
-            onChange={handleChange}
-            required
-          />
-        </div>*/}
         
         <div className="share-recipe-form-group">
           <label>Cooking Time (minutes)</label>

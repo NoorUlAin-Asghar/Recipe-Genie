@@ -21,7 +21,7 @@ const getMyUser = async (req, res) => {
     }
 };
 
-//GET User by username
+//GET User by name
 const getUserByName = async (req, res) => {
     const { name } = req.query;
 
