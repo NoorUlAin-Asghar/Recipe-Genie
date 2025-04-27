@@ -28,6 +28,7 @@ import PProfile from './pages/pprofile';
 import UserSearch from './pages/usersearch';
 import Login from './pages/login';
 import Register from './pages/register'; 
+import { ToastContainer } from 'react-toastify';
 
 
 function App() {
@@ -35,12 +36,13 @@ function App() {
   return (
 
     <BrowserRouter>
+     <ToastContainer />  {/* This is required to display the toasts */}
       <Routes>
         <Route path="/"  element={<Navigate to="/login" />} />
 
         <Route path="/home" element={<Home/>} />
         <Route path="/recipe/:id" element={<RecipeDetail />} />
-        <Route path="/Profile" element={<Profile />} />
+        <Route path="/profile/:userId" element={<Profile />} />
         <Route path="/sharerecipe" element={<ShareRecipeForm />} />
         <Route path="/usersearch" element={<UserSearch />} />
         <Route path="/pprofile/:userId" element={<PProfile />} />

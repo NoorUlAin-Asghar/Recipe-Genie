@@ -10,7 +10,7 @@ const getAllRecipes= async(req,res)=>{
     try {
         const recipes = await Recipe.find({author:userId})
           .sort({ createdAt: -1 })
-          .select('title likes cookTime') // Only select these fields
+          .select('title cookTime image likes') // Only select these fields
         
         if (!recipes || recipes.length===0) {
             console.log('No recipes exist');
@@ -34,6 +34,7 @@ const getAllRecipes= async(req,res)=>{
 
 //GET a single recipe
 const getRecipe= async(req,res)=>{
+    console.log('getting a single recipe')
     const { recipeId } = req.params;
         if(!mongoose.Types.ObjectId.isValid(recipeId)){
             console.error('Incorrect Id');
@@ -53,6 +54,7 @@ const getRecipe= async(req,res)=>{
             .populate('author', 'username'); // if you also want the recipe creator
     
             if (!recipe || recipe.length===0) {
+                console.log('Recipe not found')
                 return res.status(404).json({ error: 'Recipe not found' });
             }
             // Convert likes array to the number of likes (length of the array)
@@ -144,10 +146,14 @@ const createRecipe = async (req,res)=>{
         ingredients, 
         instructions
     } = req.body;
-
+    // Define a default logo URL
+    const defaultLogo = "http://localhost:3000/uploads/default-logo.png"; // Path to your default logo
     
     //add recipe to DB
     try {
+        // Construct the full image URL for frontend use
+        const imagePath = req.file ? `http://localhost:3000/uploads/${req.file.filename}` : defaultLogo;
+
         const newRecipe = await Recipe.create({
             title,
             author: userId,
@@ -156,7 +162,7 @@ const createRecipe = async (req,res)=>{
             serving,
             ingredients: JSON.parse(ingredients), // Parse the stringified array
             instructions: JSON.parse(instructions), // Parse the stringified array
-            image: req.file?.path // File path if uploaded
+            image: imagePath// File path if uploaded
         });
         res.status(201).json(newRecipe);
         console.log('Created recipe successfully',newRecipe);

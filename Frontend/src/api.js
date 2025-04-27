@@ -19,13 +19,17 @@ API.interceptors.request.use((req) => {
 
   export const createRecipe=(formData)=>API.post('/recipes',formData);
   export const updateRecipe=(formData,recipeId)=>API.patch(`/recipes/${recipeId}`,formData);
-
   export const getPopularRecipes=()=>API.get('/recipes/popular');
   export const searchRecipe= (query) => API.get(`/recipes/search/by-title?title=${query}`);
+  export const getRecipe=(recipeId)=>API.get(`/recipes/${recipeId}`)
 
-  // Example calls:
-  export const getMyUserProfile = () => API.get('/users/myProfile');
-  export const updateUserProfile = (data) => API.put('/user/profile', data);
-  export const getUserRecipes = () => API.get('/recipes/mine');
+
+  export const searchUserByName = (query)=>API.get(`users/search/by-name?name=${query}`);
+  export const searchUserByUsername = (query)=>API.get(`users/search/by-username?username=${query}`);
+
+
+  export const getMyProfile = () => API.get('/users/myProfile');
+  export const updateMyProfile = (data) => API.patch('/users/myProfile', data) ;
+  export const getMyRecipes = () => API.get('/recipes/myRecipes');
   // export const deleteRecipe = (id) => API.delete(`/recipes/${id}`);
   //export const likeRecipe = (id) => API.post(`/recipes/${id}/like`);

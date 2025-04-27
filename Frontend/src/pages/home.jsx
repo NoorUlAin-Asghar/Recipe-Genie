@@ -158,14 +158,14 @@ const Home = () => {
             {currentRecipes.map((recipe) => (
               <Link to={`/recipe/${recipe.id}`} key={recipe.id} className="recipe-card-link">
                 <div className="recipe-card">
-                  <img  src={recipe.image} 
+                  <img  src={recipe.image || logo} 
                         alt={recipe.name}
-                        className="recipe-image"
-                        onError={(e) => {
-                          e.target.onerror = null; // Prevent infinite loop if fallback fails
-                          e.target.src = logo;
-                          e.target.style.objectFit = 'contain'; // Adjust styling for logo
-                        }} 
+                        className={recipe.image ? 'recipe-image' : 'logo-image'}
+                        // onError={(e) => {
+                        //   e.target.onerror = null; // Prevent infinite loop if fallback fails
+                        //   e.target.src = logo;
+                        //   e.target.style.objectFit = 'contain'; // Adjust styling for logo
+                        // }} 
                   />
                   <div className="recipe-content">
                     <h3 className="recipe-title">{recipe.name}</h3>
@@ -218,15 +218,7 @@ const Home = () => {
             {allRecipes.map((recipe) => (
               <Link to={`/recipe/${recipe.id}`} key={recipe.id} className="recipe-card-link">
                 <div className="recipe-card">
-                  <img  src={recipe.image} 
-                        alt={recipe.name}
-                        className="recipe-image"
-                        onError={(e) => {
-                          e.target.onerror = null; // Prevent infinite loop if fallback fails
-                          e.target.src = logo;
-                          e.target.style.objectFit = 'contain'; // Adjust styling for logo
-                        }} 
-                  />
+                <img  src={recipe.image} alt={recipe.name} className="recipe-image"/>
                   <div className="recipe-content">
                     <h3 className="recipe-title">{recipe.name}</h3>
                     <div className="recipe-meta">

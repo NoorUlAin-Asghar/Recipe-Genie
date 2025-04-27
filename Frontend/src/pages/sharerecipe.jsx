@@ -1,39 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
-import {createRecipe, updateRecipe} from '../api'
+import LoadingScreen from '../components/loadingScreen'
+import {createRecipe, updateRecipe, getRecipe} from '../api'
 import '../sharerecipe.css';
 
 const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit }) => {
   const navigate = useNavigate();
-  const [recipe, setRecipe] = useState({
-    name: '',
-    description: '',
-    time: '',
-    serving: '',
-    ingredients: [''],
-    instructions: [''],
-    image: null,
-    imagePreview: ''
-  });
+  const [recipe, setRecipe] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [username, setUsername] = useState('');
+  const [userId, setUserID] = useState('');
+  const [loading, setLoading] = useState(true);   // Loading state to track data fetching
 
-  // Initialize form with recipe data when editing
   useEffect(() => {
-    if (initialRecipe) {
-      setRecipe({
-        ...initialRecipe,
-        ingredients: initialRecipe.ingredients.length > 0 
-          ? initialRecipe.ingredients 
-          : [''],
-        instructions: initialRecipe.instructions.length > 0 
-          ? initialRecipe.instructions 
-          : [''],
-        imagePreview: initialRecipe.image
-      });
+    // Get username directly from localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user?.data?.username) {
+      setUsername(user.data.username);
     }
-  }, [initialRecipe]);
+    if(user?.data?.userid){
+      setUserID(user.data.userid);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log('Recipe:', recipe);
+  }, [recipe]);
+  
+
+  useEffect(() => {
+    const fetchFullRecipe = async () => {
+      if (!initialRecipe?._id) {
+        setLoading(false);
+        return; // Early return if no ID
+      }
+      
+      try {
+        const recipeResponse = await getRecipe(initialRecipe._id);
+        const recipeData=recipeResponse.data;
+        const fullRecipe = {
+          name: recipeData.title,
+          description: recipeData.description,
+          time: recipeData.cookTime,
+          serving: recipeData.serving,
+          ingredients: recipeData.ingredients,
+          instructions: recipeData.instructions,
+        };
+        console.log("full recipe:", fullRecipe)
+        setRecipe(fullRecipe);
+        setLoading(false);
+      } catch (error) {
+          console.error('Error fetching recipe:', error);
+          setRecipe({
+            ...initialRecipe,
+            error: 'Failed to load recipe details'
+          });
+          setLoading(false);
+        }
+    };
+  
+    fetchFullRecipe();
+  }, [initialRecipe]); // Only re-run if initialRecipe changes
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -153,7 +182,7 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
         <div className="share-recipe-success">
           <h2>🎉 Recipe {isEditing ? 'Updated' : 'Shared'} Successfully!</h2>
           <div className="share-recipe-success-actions">
-            <button className="share-recipe-submit-btn" onClick={() => navigate('/Profile')}>
+            <button className="share-recipe-submit-btn" onClick={() => navigate(`/profile/${userId}`)}>
               Go to My Profile
             </button>
           </div>
@@ -162,6 +191,9 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
     );
   }
 
+  if (loading) {
+    return <LoadingScreen/>
+  }
   return (
     <div className="share-recipe-container">
       <Navbar />

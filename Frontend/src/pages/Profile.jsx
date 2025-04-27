@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import ShareRecipeForm from './sharerecipe';
-import defaultProfilePic from '../assetss/images/di.jpg'; // add this image
+import defaultProfilePic from '../assetss/images/profile.jpg'; // add this image
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LoadingScreen from '../components/loadingScreen'
+import { getMyProfile, getMyRecipes, updateMyProfile } from '../api';
 
 import '../Profile.css';
 import '../Home.css';
@@ -14,28 +18,46 @@ const Profile = ({ user, onUpdate }) => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(null);
   const [editingRecipe, setEditingRecipe] = useState(null);
+  const [profile, setprofile] = useState([]); // Set initial state to null
+  const [loading, setLoading] = useState(true);   // Loading state to track data fetching
 
-  // User profile data
-  const [profile, setprofile] = useState({
-    name: 'John Doe',
-    username: 'johndoe123',
-    tagline: 'Loves cooking & sharing tasty dishes 🌟',
-    profileImage: require('../assetss/images/chh.jpg'),
-    followers: 150,
-    following: 80,
-    recipes: [
-      {
-        id: 1,
-        name: 'Chicken Curry',
-        image: require('../assetss/images/chh.jpg'),
-        likes: 101,
-        time: 30,
-        description: 'Delicious spicy chicken curry',
-        ingredients: ['Chicken', 'Spices', 'Onion'],
-        instructions: ['Marinate chicken', 'Cook with spices']
-      },
-    ],
-  });
+  useEffect(() => {
+    const fetchMyProfile = async () => {
+      try {
+        const userResponse = await getMyProfile();  // Get user profile data
+        const userData = userResponse.data;  // extract real user data
+        const recipesData = await getMyRecipes();  // Get user recipes data
+        console.log('userData:', userData);
+        console.log('recipesData:', recipesData);
+  
+        // Format the response
+        const formattedResponse = {
+          name: userData.name,
+          username: userData.username,
+          profileImage: userData.profilePicture,
+          tagline: userData.bio,
+          following: userData.subscriptionsCount,
+          followers: userData.followersCount,
+          recipes: recipesData.data || [],  // Add recipes data here
+        };
+        console.log('formattedResponse:', formattedResponse);
+        setprofile(formattedResponse);  // Set the profile data in state
+         // Set the initial updatedUser to the fetched profile data
+        setUpdatedUser(formattedResponse);
+
+        setLoading(false); // Set loading to false once data is fetched
+      } catch (error) {
+        console.error('Failed to fetch profile or recipes:', error);
+        setLoading(false);  // Set loading to false in case of error
+      }
+    };
+
+    fetchMyProfile();  // Call the fetch function when component mounts
+  }, []);  // Empty dependency array to run only once when component mounts
+
+  useEffect(() => {
+    console.log('Profile updated:', profile);
+  }, [profile]);
 
   // Load subscriptions from localStorage
   useEffect(() => {
@@ -48,30 +70,113 @@ const Profile = ({ user, onUpdate }) => {
     }
   }, []);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setUpdatedUser({ ...updatedUser, profileImage: URL.createObjectURL(file) });
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      
+      // Update UI immediately
+      setUpdatedUser(prev => ({ 
+        ...prev, 
+        profileImage: previewUrl,
+        profileFile: file // Store the actual file for submission
+      }));
     }
   };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUpdatedUser({ ...updatedUser, [name]: value });
   };
 
-  const handleSave = () => {
-    onUpdate(updatedUser); // optional callback if you want to save this
+  const handleSaveUserEdit = async () => {
+    try {
+      // 1. Check for frontend changes
+        const hasChanges = 
+        updatedUser.name.trim() !== profile.name.trim() ||
+        updatedUser.tagline.trim() !== profile.tagline.trim() ||
+        (updatedUser.profileFile !== undefined);
+  
+      if (!hasChanges) {
+        setIsEditing(false);
+        toast.info('No changes were made');
+        return;
+      }
+  
+      // 2. Prepare and send data
+      const formData = new FormData();
+      formData.append('name', updatedUser.name.trim());
+      formData.append('bio', updatedUser.tagline.trim());
+      if (updatedUser.profileFile) {
+        formData.append('image', updatedUser.profileFile);
+      }
+  
+      // 3. Make API call
+      const updatedProfile = await updateMyProfile(formData);
+  
+      // 4. Verify if server actually made changes
+      const serverMadeChanges = 
+        updatedProfile.name !== profile.name ||
+        updatedProfile.bio !== profile.tagline ||
+        (updatedProfile.profilePicture !== profile.profileImage);
+  
+      if (!serverMadeChanges) {
+        setIsEditing(false);
+        toast.info('No changes were saved');
+        return;
+      }
+  
+      // 5. Update state and show success
+      const updatedData = {
+        ...profile,
+        ...updatedProfile
+      };
+  
+      setprofile(updatedData);
+      setUpdatedUser(updatedData);
+      setIsEditing(false);
+  
+      // Only show success if server actually changed something
+      toast.success(
+        <div>
+          <p>Profile updated successfully!</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            style={refreshButtonStyle}
+          >
+            Refresh Page
+          </button>
+        </div>,
+        { autoClose: false, closeButton: false }
+      );
+  
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast.error('Failed to update profile');
+    }
+  };
+  
+  // Style object for consistency
+  const refreshButtonStyle = {
+    marginTop: '8px',
+    padding: '4px 8px',
+    background: '#fff',
+    color: '#333',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer'
+  };
+  const handleCancelUserEdit = () => {
+    setUpdatedUser(profile);
     setIsEditing(false);
   };
-
 
 
   // Handle new recipe submission from ShareRecipeForm
   const handleNewRecipe = (newRecipe) => {
     const recipeWithId = {
       ...newRecipe,
-      id: Date.now(), // Temporary ID
+      _id: Date.now(), // Temporary ID
       likes: 0,
       time: parseInt(newRecipe.time),
     };
@@ -112,6 +217,11 @@ const Profile = ({ user, onUpdate }) => {
     setShowDropdown(null);
   };
 
+  useEffect(() => {
+    console.log('Recipe:', editingRecipe);
+  }, [editingRecipe]);
+
+
   const handleSaveRecipe = (updatedRecipe) => {
     setprofile(prev => ({
       ...prev,
@@ -143,32 +253,14 @@ const Profile = ({ user, onUpdate }) => {
     setprofile(prev => ({ ...prev, following: updatedSubs.length }));
   };
 
+  if (loading) {
+    return <LoadingScreen/>
+  }
   return (
     <div className="profile-page">
       <Navbar />
       <div className="profile-container">
         <div className="profile-main">
-          {/*<div className="profile-header">
-            <img src={user.profileImage} alt="Profile" className="profile-pic" />
-            <h2>{user.name}</h2>
-            <p className="username">@{user.username}</p>
-            <p className="tagline">{user.tagline}</p>
-            <div className="profile-stats">
-              <div className="stat-box">
-                <strong>{user.recipes.length}</strong>
-                <span>Posts</span>
-              </div>
-              <div className="stat-box">
-                <strong>{user.followers}</strong>
-                <span>Followers</span>
-              </div>
-              <div className="stat-box">
-                <strong>{user.following}</strong>
-                <span>Following</span>
-              </div>
-            </div>
-          </div>*/}
-
           <div className="profile-header">
             <div className="profile-pic-wrapper">
              <img
@@ -196,7 +288,7 @@ const Profile = ({ user, onUpdate }) => {
                   className="profile-edit-input"
                   placeholder="name"
                />
-                <input
+                {/* <input
                   type="text"
                   name="username"
                   value={updatedUser.username}
@@ -205,7 +297,7 @@ const Profile = ({ user, onUpdate }) => {
                   className="profile-edit-input username"
                   placeholder="username"
 
-               />
+               /> */}
                 <input
                   type="text"
                   name="tagline"
@@ -217,10 +309,10 @@ const Profile = ({ user, onUpdate }) => {
              </>
             ) : (
               <>
-                <h2>{updatedUser.name}</h2>
-                <p className="username">@{updatedUser.username}</p>
-                <p className="tagline">{updatedUser.tagline}</p>
-             </>
+              <h2>{profile.name}</h2>  {/* Use profile.name */}
+              <p className="username">@{profile.username}</p>  {/* Use profile.username */}
+              <p className="tagline">{profile.tagline}</p>  {/* Use profile.tagline */}
+            </>
            )}
 
             <div className="profile-stats">
@@ -237,17 +329,17 @@ const Profile = ({ user, onUpdate }) => {
                <span>Following</span>
              </div>
            </div>
-
-           <button onClick={() => setIsEditing(!isEditing)} className="profile-edit-btn">
+           
+           <button onClick={isEditing ? handleSaveUserEdit : () => setIsEditing(true)} className="profile-edit-btn">
               {isEditing ? 'Save Changes' : 'Edit Profile'}
-           </button>
+            </button>
+
            {isEditing && (
-            <button onClick={() => setIsEditing(false)} className="profile-cancel-btn">
+            <button onClick={handleCancelUserEdit} className="profile-cancel-btn">
               Cancel
             </button>
           )}
       </div>
-
 
 
           <div className="user-recipes">
@@ -257,37 +349,37 @@ const Profile = ({ user, onUpdate }) => {
             <div className="recipes-grid">
               {profile.recipes.map(recipe => (
                 <div 
-                  key={recipe.id} 
+                  key={recipe._id} 
                   className="user-recipe-card"
-                  onClick={() => handleRecipeClick(recipe.id)}
+                  onClick={() => handleRecipeClick(recipe._id)}
                 >
                   <div className="recipe-actions">
                     <button 
                       className="recipe-options-btn"
-                      onClick={(e) => toggleDropdown(recipe.id, e)}
+                      onClick={(e) => toggleDropdown(recipe._id, e)}
                     >
                       <i className="fas fa-ellipsis-v"></i>
                     </button>
-                    {showDropdown === recipe.id && (
+                    {showDropdown === recipe._id && (
                       <div className="recipe-dropdown">
                         <button onClick={(e) => handleEditRecipe(recipe, e)}>
                           <i className="fas fa-edit"></i> Edit
                         </button>
-                        <button onClick={(e) => handleDeleteRecipe(recipe.id, e)}>
+                        <button onClick={(e) => handleDeleteRecipe(recipe._id, e)}>
                           <i className="fas fa-trash"></i> Delete
                         </button>
                       </div>
                     )}
                   </div>
-                  <img src={recipe.image} alt={recipe.name} />
+                  <img  src={recipe.image} alt={recipe.name} className="recipe-image"/>
                   <div className="recipe-info">
-                    <p>{recipe.name}</p>
+                    <p>{recipe.title}</p>
                     <div className="recipe-meta">
                       <span>
                         <i className={recipe.likes > 0 ? "fas fa-heart" : "far fa-heart"}></i> 
                         {recipe.likes}
                       </span>
-                      <span><i className="fas fa-clock"></i> {recipe.time} mins</span>
+                      <span><i className="fas fa-clock"></i> {recipe.cookTime} mins</span>
                     </div>
                   </div>
                 </div>

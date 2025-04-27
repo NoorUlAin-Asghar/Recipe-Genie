@@ -3,7 +3,6 @@ import { Link, useNavigate} from 'react-router-dom';
 import { loginUser } from '../api';
 import ProtectRoute from '../components/protectRoute'; // Adjust path if needed
 import '../login.css'; // We'll create this CSS file
-// import '../loading.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({

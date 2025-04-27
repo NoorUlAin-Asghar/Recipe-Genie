@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 const Navbar = () => {
   const [username, setUsername] = useState('');
+  const [userId, setUserID] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,6 +14,9 @@ const Navbar = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user?.data?.username) {
       setUsername(user.data.username);
+    }
+    if(user?.data?.userid){
+      setUserID(user.data.userid);
     }
   }, []);
   //redirect to login if no user in local storage
@@ -40,7 +44,7 @@ const Navbar = () => {
         
             <i className="fas fa-plus"></i> Share Recipe
         </Link>
-        <Link to="/Profile" className="navbar-link">{username ? (<span>😊{username}</span>) : ( <span>Loading...</span>)}</Link>
+        <Link to={`/profile/${userId}`} className="navbar-link">{username ? (<span>😊{username}</span>) : ( <span>Loading...</span>)}</Link>
         <Link to="/login" className="navbar-link login-link" 
             onClick={(e) => {
               e.preventDefault();

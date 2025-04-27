@@ -1,20 +1,20 @@
 const express=require('express')
 const router=express.Router()
 const {verifyToken}=require('../middleware/authMiddleware')
-
+const upload = require('../config/multer'); 
 const {
     getUserByName,
     getUserById,
     getUserByUsername,
     // registerUser,
-    updateMyUser,
-    getMyUser
+    updateMyProfile,
+    getMyProfile
 }=require('../controllers/userController')
 
 router.use(verifyToken)
 
-router.get("/myProfile", getMyUser); // get my own profile  
-router.patch("/edit", updateMyUser); // edit my own profile
+router.get("/myProfile", getMyProfile); // get my own profile  
+router.patch("/myProfile",upload.single('image'), updateMyProfile); // edit my own profile
 
 //GET User by name
 router.get("/search/by-name",getUserByName);

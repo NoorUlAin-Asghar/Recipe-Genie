@@ -2,10 +2,11 @@ const User=require('../models/userModel')
 const mongoose=require('mongoose')
 
 //GET logged in user
-const getMyUser = async (req, res) => {
+const getMyProfile = async (req, res) => {
     try {
+        console.log(req.user._id)
         const user = await User.findById(
-            req.userId
+            req.user._id
         ).select('name username profilePicture bio subscriptions followers');// req.user is set in middleware
         const filteredData = {
             name: user.name,
@@ -17,6 +18,7 @@ const getMyUser = async (req, res) => {
         };
         res.status(200).json(filteredData);
     } catch (error) {
+        console.error(error)
         res.status(500).json({ error: "Server error while getting profile" });
     }
 };
@@ -61,7 +63,7 @@ const getUserByUsername = async (req, res) => {
     try {
         const users = await User.find({
             username: { $regex: new RegExp(`^${username}`) } 
-        }).select('name username profilePicture bio subscriptions followers');
+        }).select('name username profilePicture');
 
 
         if (!users || users.length === 0) {
@@ -74,9 +76,9 @@ const getUserByUsername = async (req, res) => {
             name: user.name,
             username: user.username,
             profilePicture: user.profilePicture,
-            bio: user.bio,
-            subscriptionsCount: user.subscriptions.length,
-            followersCount: user.followers.length
+            // bio: user.bio,
+            // subscriptionsCount: user.subscriptions.length,
+            // followersCount: user.followers.length
         }));
 
         res.status(200).json(filteredUsers);
@@ -125,20 +127,39 @@ const getUserById = async (req, res) => {
 };
 
 
-const updateMyUser = async (req, res) => {
+const updateMyProfile = async (req, res) => {
+    const defaultProfilePicture = "http://localhost:3000/uploads/default-profile.png"; // Path to your default logo
     try {
-        const user = await User.findByIdAndUpdate(
-            req.userId,
-            { ...req.body },
-            { new: true, runValidators: true }
-        );
-
+        const { name, bio } = req.body;
+    
+        const user = await User.findById(req.user._id);
+    
         if (!user) {
-            return res.status(404).json("User not found");
+          return res.status(404).json({ error: "User not found" });
         }
-
-        res.status(200).json(user);
+    
+        // Build update object
+        const updateData = { name, bio };
+    
+        if (req.file) {
+          // If a new file is uploaded
+          updateData.profilePicture = `http://localhost:3000/uploads/${req.file.filename}`;
+        } else if (!user.profilePicture) {
+          // If no file is uploaded and no profile picture exists
+          updateData.profilePicture = defaultProfilePicture;
+        }
+        // else: keep the existing one (no change)
+    
+        const updatedUser = await User.findByIdAndUpdate(
+          req.user._id,
+          updateData,
+          { new: true, runValidators: true }
+        );
+        console.log(updatedUser)
+        res.status(200).json(updatedUser);
+    
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Server error while updating user" });
     }
 };
@@ -150,6 +171,6 @@ module.exports={
     getUserByUsername,
     getUserById,
     // registerUser,
-    updateMyUser,
-    getMyUser
+    updateMyProfile,
+    getMyProfile
 } 
