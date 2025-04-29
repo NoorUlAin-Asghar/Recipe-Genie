@@ -1,8 +1,8 @@
-import React, { useState,useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState} from 'react';
+import { Link, useNavigate} from 'react-router-dom';
 import { loginUser } from '../api';
+import ProtectRoute from '../components/protectRoute'; // Adjust path if needed
 import '../login.css'; // We'll create this CSS file
-import '../loading.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -12,22 +12,22 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  // const [isRedirecting, setIsRedirecting] = useState(false);
 
   
   const navigate = useNavigate();
 
-  // Check for existing user on mount
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user?.data?.token) {
-      setIsRedirecting(true);
-      const timer = setTimeout(() => {
-        navigate('/home', { replace: true });
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [navigate]);
+  // // Check for existing user on mount
+  // useEffect(() => {
+  //   const user = JSON.parse(localStorage.getItem('user'));
+  //   if (user?.data?.token) {
+  //     setIsRedirecting(true);
+  //     const timer = setTimeout(() => {
+  //       navigate('/home', { replace: true });
+  //     }, 1500);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,24 +77,26 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-  if (isRedirecting) {
-    return (
-      <div className="redirect-screen">
-        <div className="redirect-card">
-          <img 
-            src={require('../assetss/images/logo.jpg')} 
-            alt="Logo" 
-            className="redirect-logo"
-          />
-          <h2>Welcome Back!</h2>
-          <h3>Already Signed In</h3>
-          <p>Taking you to your recipes...</p>
-          <div className="redirect-spinner"></div>
-        </div>
-      </div>
-    );
-  }
+  // if (isRedirecting) {
+  //   return (
+  //     <div className="redirect-screen">
+  //       <div className="redirect-card">
+  //         <img 
+  //           src={require('../assetss/images/logo.jpg')} 
+  //           alt="Logo" 
+  //           className="redirect-logo"
+  //         />
+  //         <h2>Welcome Back!</h2>
+  //         <h3>Already Signed In</h3>
+  //         <p>Taking you to your recipes...</p>
+  //         <div className="redirect-spinner"></div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
   return (
+    <>
+    <ProtectRoute /> 
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
@@ -158,6 +160,7 @@ const Login = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

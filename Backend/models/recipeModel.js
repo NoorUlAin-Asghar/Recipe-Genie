@@ -7,12 +7,14 @@ const recipeSchema = new Schema({
   author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   description: { type: String, required: true }, // Short overview or intro
   cookTime: { type: Number, required: true },    // In minutes
+  serving:{type: Number, required:true},
   ingredients: [
-    {
-      name: { type: String, required: true }
-    }
+    { type: String, required: true }
   ],
-  instructions: { type: String, required: true },
+  instructions: [
+    { type: String, required: true }
+  ],
+  image: { type: String, default: '' },
   likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]
 }, { timestamps: true });

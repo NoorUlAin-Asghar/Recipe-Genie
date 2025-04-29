@@ -1,39 +1,68 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
+import LoadingScreen from '../components/loadingScreen'
+import {createRecipe, updateRecipe, getRecipe} from '../api'
 import '../sharerecipe.css';
 
 const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit }) => {
   const navigate = useNavigate();
-  const [recipe, setRecipe] = useState({
-    name: '',
-    description: '',
-    time: '',
-    ingredients: [''],
-    instructions: [''],
-    image: null,
-    imagePreview: ''
-  });
+  const [recipe, setRecipe] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [username, setUsername] = useState('');
+  const [userId, setUserID] = useState('');
+  const [loading, setLoading] = useState(true);   // Loading state to track data fetching
 
-  // Initialize form with recipe data when editing
   useEffect(() => {
-    if (initialRecipe) {
-      setRecipe({
-        ...initialRecipe,
-        ingredients: initialRecipe.ingredients.length > 0 
-          ? initialRecipe.ingredients 
-          : [''],
-        instructions: initialRecipe.instructions.length > 0 
-          ? initialRecipe.instructions 
-          : [''],
-        imagePreview: initialRecipe.image
-      });
+    // Get username directly from localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user?.data?.username) {
+      setUsername(user.data.username);
     }
-  }, [initialRecipe]);
+    if(user?.data?.userid){
+      setUserID(user.data.userid);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log('Recipe:', recipe);
+  }, [recipe]);
+  
+
+  useEffect(() => {
+    const fetchFullRecipe = async () => {
+      if (!initialRecipe?._id) {
+        setLoading(false);
+        return; // Early return if no ID
+      }
+      
+      try {
+        const recipeResponse = await getRecipe(initialRecipe._id);
+        const recipeData=recipeResponse.data;
+        const fullRecipe = {
+          name: recipeData.title,
+          description: recipeData.description,
+          time: recipeData.cookTime,
+          serving: recipeData.serving,
+          ingredients: recipeData.ingredients,
+          instructions: recipeData.instructions,
+        };
+        console.log("full recipe:", fullRecipe)
+        setRecipe(fullRecipe);
+        setLoading(false);
+      } catch (error) {
+          console.error('Error fetching recipe:', error);
+          setRecipe({
+            ...initialRecipe,
+            error: 'Failed to load recipe details'
+          });
+          setLoading(false);
+        }
+    };
+  
+    fetchFullRecipe();
+  }, [initialRecipe]); // Only re-run if initialRecipe changes
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -104,10 +133,39 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
     };
 
     try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const token = user?.data?.token;
+  
+      if (!token) {
+        console.error('No token found. Please login again.');
+        return;
+      }
+      const formData = new FormData();
+      formData.append('name', recipeToSave.name);
+      formData.append('description', recipeToSave.description);
+      formData.append('time', recipeToSave.time);
+      formData.append('serving', recipeToSave.serving);
+      formData.append('ingredients', JSON.stringify(recipeToSave.ingredients));
+      formData.append('instructions', JSON.stringify(recipeToSave.instructions));
+      if (recipeToSave.image) {
+        formData.append('image', recipeToSave.image);
+      }
       if (isEditing) {
-        await onSave(recipeToSave);
-      } else {
-        await onSubmit?.(recipeToSave);
+        const recipeId = initialRecipe._id; // initialRecipe._id depending on your backend
+        const response = await updateRecipe(formData,recipeId);
+        console.log(response);
+        if (!response.data) {
+          throw new Error('Updating recipe failed');
+        }
+        //await onSave(recipeToSave);
+      } 
+      else {
+        const response = await createRecipe(formData);
+        console.log(response);
+        if (!response.data) {
+          throw new Error('Creating recipe failed');
+        }
+        //await onSubmit?.(recipeToSave);
       }
       setIsSubmitted(true);
     } catch (error) {
@@ -124,7 +182,7 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
         <div className="share-recipe-success">
           <h2>🎉 Recipe {isEditing ? 'Updated' : 'Shared'} Successfully!</h2>
           <div className="share-recipe-success-actions">
-            <button className="share-recipe-submit-btn" onClick={() => navigate('/Profile')}>
+            <button className="share-recipe-submit-btn" onClick={() => navigate(`/profile/${userId}`)}>
               Go to My Profile
             </button>
           </div>
@@ -133,6 +191,9 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
     );
   }
 
+  if (loading) {
+    return <LoadingScreen/>
+  }
   return (
     <div className="share-recipe-container">
       <Navbar />
@@ -152,17 +213,19 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
         </div>
 
         <div className="share-recipe-form-group">
-          <label>Servings</label>
+          <label>Serving</label>
           <input
-            type="text"
-            name="servings"
+            type="number"
+            name="serving"
             className="share-recipe-servings"
 
-            value={recipe.servings}
+            value={recipe.serving}
             onChange={handleChange}
+            min="1"
             required
           />
         </div>
+        
         <div className="share-recipe-form-group">
           <label>Description</label>
           <textarea
@@ -174,19 +237,6 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
             required
           />
         </div>
-        
-        
-        {/*<div className="share-recipe-form-group">
-          <label>Servings</label>
-          <textarea
-            name="Servings"
-            className="share-recipe-textarea"
-
-            value={recipe.servings}
-            onChange={handleChange}
-            required
-          />
-        </div>*/}
         
         <div className="share-recipe-form-group">
           <label>Cooking Time (minutes)</label>

@@ -6,12 +6,16 @@ const commentRoutes=require('./routes/commentRoutes')
 const userRoutes=require('./routes/userRoutes')
 const authRoutes=require('./routes/authRoutes')
 
+const path = require('path');
 
 //express app
 const app=express()
 
 //middleware
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+// Serve static files from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use((req,res,next)=>{
     console.log(req.path,req.method)
