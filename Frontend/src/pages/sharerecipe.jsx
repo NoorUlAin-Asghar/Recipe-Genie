@@ -1,25 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation  } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import LoadingScreen from '../components/loadingScreen'
 import {createRecipe, updateRecipe, getRecipe} from '../api'
 import '../sharerecipe.css';
 
-const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit }) => {
+const ShareRecipeForm = () => {
   const navigate = useNavigate();
-  const [recipe, setRecipe] = useState({});
+  const location = useLocation();
+  const initialRecipe = location.state?.recipe || null; // 👈 get from navigation state
+  const isEditing = location.state?.isEditing || false;
+  const [recipe, setRecipe] = useState({
+    name: '',
+    description: '',
+    time: '',
+    serving: '',
+    ingredients: [''],
+    instructions: [''],
+    image: null,
+    imagePreview: ''
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [username, setUsername] = useState('');
+  // const [username, setUsername] = useState('');
   const [userId, setUserID] = useState('');
   const [loading, setLoading] = useState(true);   // Loading state to track data fetching
 
   useEffect(() => {
-    // Get username directly from localStorage
+    // // Get username directly from localStorage
     const user = JSON.parse(localStorage.getItem('user'));
-    if (user?.data?.username) {
-      setUsername(user.data.username);
-    }
+    // if (user?.data?.username) {
+    //   setUsername(user.data.username);
+    // }
     if(user?.data?.userid){
       setUserID(user.data.userid);
     }
@@ -33,10 +45,11 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
   useEffect(() => {
     const fetchFullRecipe = async () => {
       if (!initialRecipe?._id) {
+        // console.log(initialRecipe._id);
         setLoading(false);
-        return; // Early return if no ID
+        return; // Early return if not editing or no ID
       }
-      
+ 
       try {
         const recipeResponse = await getRecipe(initialRecipe._id);
         const recipeData=recipeResponse.data;
@@ -47,6 +60,7 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
           serving: recipeData.serving,
           ingredients: recipeData.ingredients,
           instructions: recipeData.instructions,
+          image: recipeData.image, 
         };
         console.log("full recipe:", fullRecipe)
         setRecipe(fullRecipe);
@@ -110,15 +124,15 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setRecipe(prev => ({
-          ...prev,
-          image: file,
-          imagePreview: reader.result
-        }));
-      };
-      reader.readAsDataURL(file);
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      
+      // Update UI immediately
+      setRecipe(prev => ({ 
+        ...prev, 
+        image: previewUrl,
+        imageFile: file // Store the actual file for submission
+      }));
     }
   };
 
@@ -141,15 +155,25 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
         return;
       }
       const formData = new FormData();
-      formData.append('name', recipeToSave.name);
-      formData.append('description', recipeToSave.description);
-      formData.append('time', recipeToSave.time);
+      formData.append('title', recipeToSave.name.trim());
+      formData.append('description', recipeToSave.description.trim());
+      formData.append('cookTime', recipeToSave.time);
       formData.append('serving', recipeToSave.serving);
       formData.append('ingredients', JSON.stringify(recipeToSave.ingredients));
       formData.append('instructions', JSON.stringify(recipeToSave.instructions));
-      if (recipeToSave.image) {
-        formData.append('image', recipeToSave.image);
+      if (recipeToSave.imageFile) {
+        formData.append('image', recipeToSave.imageFile);
       }
+
+      // Logging the initial recipe _id and formData
+      //console.log('Initial Recipe ID:', initialRecipe._id);
+
+      // Looping through FormData entries and logging them
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+
       if (isEditing) {
         const recipeId = initialRecipe._id; // initialRecipe._id depending on your backend
         const response = await updateRecipe(formData,recipeId);
@@ -190,6 +214,7 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
       </div>
     );
   }
+  
 
   if (loading) {
     return <LoadingScreen/>
@@ -331,15 +356,11 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
             accept="image/*"
             onChange={handleImageChange}
           />
-          {recipe.imagePreview && (
-            <img 
-              src={typeof recipe.imagePreview === 'string' 
-                ? recipe.imagePreview 
-                : URL.createObjectURL(recipe.imagePreview)} 
-              alt="Preview" 
-              className="share-recipe-image-preview" 
-            />
-          )}
+          <img
+              src={recipe.image}
+              alt="Recipe"
+              className="share-recipe-image-preview"
+          />
         </div>
         
         <div className="share-recipe-form-actions">
@@ -361,7 +382,7 @@ const ShareRecipeForm = ({ initialRecipe, onSave, onCancel, isEditing, onSubmit 
           <button 
             type="button" 
             className="share-recipe-cancel-btn"
-            onClick={() => isEditing ? onCancel() : navigate(-1)}
+            onClick={() => navigate(-1)}
             disabled={isSubmitting}
           >
             Cancel

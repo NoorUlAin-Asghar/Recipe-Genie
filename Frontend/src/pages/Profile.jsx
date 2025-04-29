@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
-import ShareRecipeForm from './sharerecipe';
 import defaultProfilePic from '../assetss/images/profile.jpg'; // add this image
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -20,17 +19,29 @@ const Profile = ({ user, onUpdate }) => {
   const [editingRecipe, setEditingRecipe] = useState(null);
   const [profile, setprofile] = useState([]); // Set initial state to null
   const [loading, setLoading] = useState(true);   // Loading state to track data fetching
+  const [errorMessage, setErrorMessage] = useState('');
+
 
   useEffect(() => {
     const fetchMyProfile = async () => {
       try {
-        const userResponse = await getMyProfile();  // Get user profile data
-        const userData = userResponse.data;  // extract real user data
-        const recipesData = await getMyRecipes();  // Get user recipes data
-        console.log('userData:', userData);
-        console.log('recipesData:', recipesData);
+        const userResponse = await getMyProfile();
+        const userData = userResponse.data;
   
-        // Format the response
+        let recipes = [];
+  
+        try {
+          const recipesResponse = await getMyRecipes();
+          recipes = recipesResponse.data || [];
+        } catch (recipeError) {
+          if (recipeError.response?.status === 404) {
+            // No recipes found — treat as empty, not error
+            recipes = [];
+          } else {
+            throw recipeError; // Rethrow if it's another error
+          }
+        }
+  
         const formattedResponse = {
           name: userData.name,
           username: userData.username,
@@ -38,23 +49,26 @@ const Profile = ({ user, onUpdate }) => {
           tagline: userData.bio,
           following: userData.subscriptionsCount,
           followers: userData.followersCount,
-          recipes: recipesData.data || [],  // Add recipes data here
+          recipes,
         };
-        console.log('formattedResponse:', formattedResponse);
-        setprofile(formattedResponse);  // Set the profile data in state
-         // Set the initial updatedUser to the fetched profile data
+  
+        setprofile(formattedResponse);
         setUpdatedUser(formattedResponse);
-
-        setLoading(false); // Set loading to false once data is fetched
+        setLoading(false);
       } catch (error) {
         console.error('Failed to fetch profile or recipes:', error);
-        setLoading(false);  // Set loading to false in case of error
+        setErrorMessage(
+          error?.response?.data?.message ||
+          error?.message ||
+          'Failed to load profile. Please try again later.'
+        );
+        setLoading(false);
       }
     };
-
-    fetchMyProfile();  // Call the fetch function when component mounts
-  }, []);  // Empty dependency array to run only once when component mounts
-
+  
+    fetchMyProfile();
+  }, []);
+  
   useEffect(() => {
     console.log('Profile updated:', profile);
   }, [profile]);
@@ -139,7 +153,7 @@ const Profile = ({ user, onUpdate }) => {
       // Only show success if server actually changed something
       toast.success(
         <div>
-          <p>Profile updated successfully!</p>
+          <p>To confirm profile updates, refesh</p>
           <button 
             onClick={() => window.location.reload()} 
             style={refreshButtonStyle}
@@ -213,8 +227,10 @@ const Profile = ({ user, onUpdate }) => {
 
   const handleEditRecipe = (recipe, e) => {
     e.stopPropagation();
-    setEditingRecipe(recipe);
+    //setEditingRecipe(recipe);
     setShowDropdown(null);
+    navigate('/sharerecipe', { state: { recipe, isEditing: true } });
+
   };
 
   useEffect(() => {
@@ -255,6 +271,17 @@ const Profile = ({ user, onUpdate }) => {
 
   if (loading) {
     return <LoadingScreen/>
+  }
+  if (errorMessage) {
+    return (
+      <div className="profile-page">
+        <Navbar />
+        <div className="error-message">
+          <h2>Oops!</h2>
+          <p>{errorMessage}</p>
+        </div>
+      </div>
+    );
   }
   return (
     <div className="profile-page">
@@ -342,12 +369,17 @@ const Profile = ({ user, onUpdate }) => {
       </div>
 
 
-          <div className="user-recipes">
-            <div className="recipes-title-box">
-              <h3>My Recipes</h3>
-            </div>
+        <div className="user-recipes">
+          <div className="recipes-title-box">
+            <h3>My Recipes</h3>
+          </div>
             <div className="recipes-grid">
-              {profile.recipes.map(recipe => (
+              {profile.recipes.length === 0 ? (
+                <div className="no-recipes-message">
+                  <p>You haven't added any recipes yet. Get started by sharing your first one!</p>
+                </div>
+              ) : (
+                      profile.recipes.map(recipe => (
                 <div 
                   key={recipe._id} 
                   className="user-recipe-card"
@@ -383,7 +415,8 @@ const Profile = ({ user, onUpdate }) => {
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+            )}
             </div>
           </div>
         </div>
@@ -434,7 +467,7 @@ const Profile = ({ user, onUpdate }) => {
         </div>
       </div>
 
-      {editingRecipe && (
+      {/* {editingRecipe && (
         <div className="edit-recipe-modal">
           <div className="modal-content">
             <ShareRecipeForm 
@@ -445,7 +478,7 @@ const Profile = ({ user, onUpdate }) => {
             />
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

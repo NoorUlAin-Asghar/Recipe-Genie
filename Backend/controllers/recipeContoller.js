@@ -139,9 +139,9 @@ const createRecipe = async (req,res)=>{
     console.log("creating recipe",req.body)
     const userId=req.user._id
     const { 
-        name: title, // Map 'name' from frontend to 'title' in backend
+        title, // Map 'name' from frontend to 'title' in backend
         description, 
-        time: cookTime, // Map 'time' to 'cookTime'
+        cookTime, // Map 'time' to 'cookTime'
         serving,
         ingredients, 
         instructions
@@ -198,34 +198,65 @@ const deleteRecipe=async(req,res)=>{
 }
 
 //UPDATE a recipe
-const updateRecipe=async(req,res)=>{
-    const {recipeId}=req.params;
-    if(!mongoose.Types.ObjectId.isValid(recipeId)){
-        console.error('Incorrect Id');
-        return res.status(400).json({error: 'No such recipe'});
-    }
-    try{
-        const recipe=await Recipe.findByIdAndUpdate(
-            recipeId,
-            {...req.body},
-            { new: true, runValidators: true } // Return updated doc and validate inputs
-        );
-        
-        if(recipe){
-            res.status(200).json(recipe);
-            console.log('Updated recipe successfully',recipe);
+const updateRecipe = async (req, res) => {
+    const defaultImage = "http://localhost:3000/uploads/default-recipe.png"; // Path to your default image
+
+    try {
+        const recipeId=req.params.recipeId;
+        console.log(recipeId);
+        const ingredients = JSON.parse(req.body.ingredients);
+        const instructions = JSON.parse(req.body.instructions);
+
+        const {title, description, cookTime, serving} = req.body;
+
+        // Check if recipeId is valid
+        if (!mongoose.Types.ObjectId.isValid(recipeId)) {
+            console.error('Incorrect Id');
+            return res.status(400).json({ error: 'No such recipe' });
         }
-        else{
+
+        const recipe = await Recipe.findById(recipeId);
+
+
+        if (!recipe) {
             console.error('No recipe exists');
-            return res.status(404).json({error: 'No such recipe'});
+            return res.status(404).json({ error: 'No such recipe' });
         }
-    }
-    catch(error){
-        console.error('error updating recipe: ',error);
+
+        // Build update object
+        const updateData = {
+            title,
+            description,
+            cookTime,
+            serving,
+            ingredients,
+            instructions,
+            author: req.user._id // Ensure the recipe is updated by the logged-in user
+        };
+
+        if (req.file) {
+            // If a new image is uploaded
+            updateData.image = `http://localhost:3000/uploads/${req.file.filename}`;
+        } else if (!recipe.image) {
+            // If no image is uploaded and no image exists for the recipe
+            updateData.image = defaultImage;
+        }
+
+        // Update the recipe
+        const updatedRecipe = await Recipe.findByIdAndUpdate(
+            recipeId,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        console.log('Updated recipe successfully', updatedRecipe);
+        res.status(200).json(updatedRecipe);
+        
+    } catch (error) {
+        console.error('Error updating recipe: ', error);
         res.status(500).json({ error: 'Server error while updating recipe' });
     }
-
-}
+};
 
 module.exports={
     createRecipe,

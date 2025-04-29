@@ -397,3 +397,25 @@
   overflow-y: auto;
 }
 
+.no-recipes-message {
+  grid-column: 1 / -1; /* Make it span all columns */
+  text-align: center;
+  padding: 2rem;
+  font-weight: bold;
+  color: #ff8c42;;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 200px; /* Adjust as needed */
+  background: #fff;
+  border-radius: 15px;
+  margin: 20px 0;
+  border: 1px dashed #ddd;
+}
+
+.no-recipes-message p {
+  font-size: 1.2rem;
+  font-style: italic;
+  margin: 0;
+}

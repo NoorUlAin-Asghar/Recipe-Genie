@@ -34,7 +34,7 @@ router.post('/',upload.single('image'),createRecipe);
 router.delete('/:recipeId',upload.single('image'),deleteRecipe)
 
 //UPDATE a single recipe
-router.patch('/:recipeId',updateRecipe)
+router.patch('/:recipeId',upload.single('image'),updateRecipe)
 
 
 module.exports=router
