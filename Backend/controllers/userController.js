@@ -2,11 +2,17 @@ const User=require('../models/userModel')
 const mongoose=require('mongoose')
 
 //GET logged in user
-const getMyProfile = async (req, res) => {
+const getProfile = async (req, res) => {
+    const { userId } = req.params;
+    console.log(userId)
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        console.error('Incorrect Id');
+        return res.status(400).json({ error: 'Invalid user ID' });
+    }
+
     try {
-        console.log(req.user._id)
         const user = await User.findById(
-            req.user._id
+            userId
         ).select('name username profilePicture bio subscriptions followers');// req.user is set in middleware
         const filteredData = {
             name: user.name,
@@ -30,7 +36,7 @@ const getUserByName = async (req, res) => {
     try {
         const users = await User.find({
             name: { $regex: new RegExp(`(^|\\s)${name}`, 'i') } // Matches if search starts a word
-        }).select('name username profilePicture bio subscriptions followers');
+        }).select('_id name username profilePicture bio subscriptions followers');
 
 
         if (!users || users.length === 0) {
@@ -40,6 +46,7 @@ const getUserByName = async (req, res) => {
 
         // Map to return only selected fields + follower/subscription count
         const filteredUsers = users.map(user => ({
+            _id:user._id,
             name: user.name,
             username: user.username,
             profilePicture: user.profilePicture,
@@ -73,6 +80,7 @@ const getUserByUsername = async (req, res) => {
 
         // Map to return only selected fields + follower/subscription count
         const filteredUsers = users.map(user => ({
+            userId:user.userId,
             name: user.name,
             username: user.username,
             profilePicture: user.profilePicture,
@@ -172,5 +180,5 @@ module.exports={
     getUserById,
     // registerUser,
     updateMyProfile,
-    getMyProfile
+    getProfile
 } 

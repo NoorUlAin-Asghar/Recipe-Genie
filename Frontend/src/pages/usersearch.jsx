@@ -31,7 +31,7 @@ const UserSearch = () => {
           if (isMounted && userSearchTerm.length > 2) {
             if (response && response.data.length > 0) {
               const formattedResponse = response.data.map(user => ({
-                id: user._id || user.id,
+                id: user._id,
                 name: user.name,
                 username: user.username,
                 avatar: user.profilePicture,
@@ -52,7 +52,7 @@ const UserSearch = () => {
                 let response = await searchUserByUsername(userSearchTerm);
                 if (response && response.data.length > 0) {
                   const formattedResponse = response.data.map(user => ({
-                    id: user._id || user.id,
+                    id: user._id,
                     name: user.name,
                     username: user.username,
                     avatar: user.profilePicture,
@@ -84,6 +84,16 @@ const UserSearch = () => {
       clearTimeout(timer);
     };
   }, [userSearchTerm]);
+
+   // Add this function to handle navigation safely
+   const handleUserClick = (user) => {
+    if (user.id) {
+      navigate(`/profile/${user.id}`);
+    } else {
+      console.error('Cannot navigate: User ID is undefined', user);
+      // Optionally show an error message to the user
+    }
+  };
 
   return (
     <div className="user-search-page">
@@ -117,7 +127,7 @@ const UserSearch = () => {
                   <div 
                     key={user.id} 
                     className="user-result-card"
-                    onClick={() => navigate(`/profile/${user.username}`)}
+                    onClick={() => handleUserClick(user)}
                   >
                     <img src={user.avatar || require('../assetss/images/profile.jpg')} alt={user.name} className="user-avatar-image" />
                     <div className="user-details">

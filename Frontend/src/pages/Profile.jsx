@@ -1,73 +1,98 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams  } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import defaultProfilePic from '../assetss/images/profile.jpg'; // add this image
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ConfirmToast } from '../components/ConfirmToast'; // Import the component
 import LoadingScreen from '../components/loadingScreen'
-import { getMyProfile, getMyRecipes, updateMyProfile } from '../api';
+import { getProfile, getAllRecipesOfAUser, updateMyProfile, deleteRecipe } from '../api';
 
 import '../Profile.css';
 import '../Home.css';
 
-const Profile = ({ user, onUpdate }) => {
+const Profile = ({ user}) => {
+  const { userId} = useParams(); // ID from URL - whose profile we are currently visitng
   const [isEditing, setIsEditing] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({ ...user });
   const navigate = useNavigate();
   const [subscriptions, setSubscriptions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(null);
   const [editingRecipe, setEditingRecipe] = useState(null);
-  const [profile, setprofile] = useState([]); // Set initial state to null
+  const [profile, setprofile] = useState({
+  name: '',
+  username: '',
+  profileImage: '',
+  tagline: '',
+  followers: 0,
+  following: 0,
+  recipes: []
+});
   const [loading, setLoading] = useState(true);   // Loading state to track data fetching
   const [errorMessage, setErrorMessage] = useState('');
+  const [currentUserId, setCurrentUserId] = useState('');
 
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+      if(user?.data?.userid){
+        setCurrentUserId(user.data.userid);
+      }
+    }, []);
+  
+  const isOwner = currentUserId === userId;
 
+  // Reset state when userId changes
+  useEffect(() => {
+    return () => {
+      setprofile({
+        name: '',
+        username: '',
+        profileImage: '',
+        tagline: '',
+        followers: 0,
+        following: 0,
+        recipes: []
+      });
+      setLoading(true);
+    };
+  }, [userId]);
+
+  // Fetch profile data
   useEffect(() => {
     const fetchMyProfile = async () => {
       try {
-        const userResponse = await getMyProfile();
-        const userData = userResponse.data;
-  
-        let recipes = [];
-  
-        try {
-          const recipesResponse = await getMyRecipes();
-          recipes = recipesResponse.data || [];
-        } catch (recipeError) {
-          if (recipeError.response?.status === 404) {
-            // No recipes found — treat as empty, not error
-            recipes = [];
-          } else {
-            throw recipeError; // Rethrow if it's another error
-          }
-        }
-  
+        if (!userId) return;
+        
+        setLoading(true);
+        console.log("Fetching profile for:", userId);
+        
+        const [userResponse, recipesResponse] = await Promise.all([
+          getProfile(userId),
+          getAllRecipesOfAUser(userId).catch(() => ({ data: [] })) // Graceful fallback
+        ]);
+
         const formattedResponse = {
-          name: userData.name,
-          username: userData.username,
-          profileImage: userData.profilePicture,
-          tagline: userData.bio,
-          following: userData.subscriptionsCount,
-          followers: userData.followersCount,
-          recipes,
+          name: userResponse.data.name,
+          username: userResponse.data.username,
+          profileImage: userResponse.data.profilePicture,
+          tagline: userResponse.data.bio,
+          following: userResponse.data.subscriptionsCount,
+          followers: userResponse.data.followersCount,
+          recipes: recipesResponse.data || [],
         };
-  
+
         setprofile(formattedResponse);
         setUpdatedUser(formattedResponse);
-        setLoading(false);
       } catch (error) {
-        console.error('Failed to fetch profile or recipes:', error);
-        setErrorMessage(
-          error?.response?.data?.message ||
-          error?.message ||
-          'Failed to load profile. Please try again later.'
-        );
+        console.error('Failed to fetch profile:', error);
+        setErrorMessage(error?.response?.data?.message || 'Failed to load profile');
+      } finally {
         setLoading(false);
       }
     };
-  
+
     fetchMyProfile();
-  }, []);
+  }, [userId, navigate]);
+
   
   useEffect(() => {
     console.log('Profile updated:', profile);
@@ -152,17 +177,15 @@ const Profile = ({ user, onUpdate }) => {
   
       // Only show success if server actually changed something
       toast.success(
-        <div>
-          <p>To confirm profile updates, refesh</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            style={refreshButtonStyle}
-          >
-            Refresh Page
-          </button>
-        </div>,
-        { autoClose: false, closeButton: false }
+        'Updating Profile, refreshing...',
+        { autoClose: 1000, closeButton: false }
       );
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000); // Refresh after 1 seconds
+      setShowDropdown(null);
+    
   
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -185,24 +208,6 @@ const Profile = ({ user, onUpdate }) => {
     setIsEditing(false);
   };
 
-
-  // Handle new recipe submission from ShareRecipeForm
-  const handleNewRecipe = (newRecipe) => {
-    const recipeWithId = {
-      ...newRecipe,
-      _id: Date.now(), // Temporary ID
-      likes: 0,
-      time: parseInt(newRecipe.time),
-    };
-    
-    setprofile(prev => ({
-      ...prev,
-      recipes: [recipeWithId, ...prev.recipes],
-      // Increment posts count
-      followers: prev.followers + 1 // Or whatever increment logic you want
-    }));
-  };
-
   const toggleDropdown = (recipeId, e) => {
     e.stopPropagation();
     setShowDropdown(showDropdown === recipeId ? null : recipeId);
@@ -214,15 +219,49 @@ const Profile = ({ user, onUpdate }) => {
     }
   };
 
-  const handleDeleteRecipe = (recipeId, e) => {
+  const handleDeleteRecipe = async (recipeId, e) => {
     e.stopPropagation();
-    setprofile(prev => ({
-      ...prev,
-      recipes: prev.recipes.filter(recipe => recipe.id !== recipeId),
-      // Decrement posts count
-      followers: Math.max(0, prev.followers - 1) // Prevent negative count
-    }));
-    setShowDropdown(null);
+
+    // Show confirmation toast
+    const confirmed = await new Promise((resolve) => {
+      toast(
+        <ConfirmToast 
+          message="Do you really want to delete this recipe? This action cannot be undone."
+          onConfirm={() => {
+            toast.dismiss();
+            resolve(true);
+          }}
+          onCancel={() => {
+            toast.dismiss();
+            resolve(false);
+          }}
+          confirmText="Delete"  // Optional - defaults to "Delete"
+          cancelText="Cancel"    // Optional - defaults to "Cancel"
+        />,
+        {
+          position: 'top-center',
+          autoClose: false,
+          closeOnClick: false,
+          closeButton: false,
+          draggable: false
+        }
+      );
+    });
+
+    if (!confirmed) {
+      setShowDropdown(null);
+      return;
+    }
+
+    try {
+      toast.success('Deleting recipe...', { autoClose: 1000 });
+      await deleteRecipe(recipeId);
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      toast.error('Failed to delete recipe');
+    } finally {
+      setShowDropdown(null);
+    }
   };
 
   const handleEditRecipe = (recipe, e) => {
@@ -236,21 +275,6 @@ const Profile = ({ user, onUpdate }) => {
   useEffect(() => {
     console.log('Recipe:', editingRecipe);
   }, [editingRecipe]);
-
-
-  const handleSaveRecipe = (updatedRecipe) => {
-    setprofile(prev => ({
-      ...prev,
-      recipes: prev.recipes.map(recipe => 
-        recipe.id === updatedRecipe.id ? updatedRecipe : recipe
-      )
-    }));
-    setEditingRecipe(null);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingRecipe(null);
-  };
 
   const unsubscribe = (chefId) => {
     const updatedSubs = subscriptions.filter(chef => chef.id !== chefId);
@@ -357,9 +381,13 @@ const Profile = ({ user, onUpdate }) => {
              </div>
            </div>
            
-           <button onClick={isEditing ? handleSaveUserEdit : () => setIsEditing(true)} className="profile-edit-btn">
+           {isOwner ? (
+              <button onClick={isEditing ? handleSaveUserEdit : () => setIsEditing(true)} className="profile-edit-btn">
               {isEditing ? 'Save Changes' : 'Edit Profile'}
             </button>
+            ) : (
+              <button className="profile-edit-btn">Follow</button> //handle subscribe functionality
+            )}
 
            {isEditing && (
             <button onClick={handleCancelUserEdit} className="profile-cancel-btn">
@@ -371,12 +399,20 @@ const Profile = ({ user, onUpdate }) => {
 
         <div className="user-recipes">
           <div className="recipes-title-box">
-            <h3>My Recipes</h3>
+            {isOwner ? (
+               <h3>My Recipes</h3>
+            ) : (
+              <h3>{profile.username}'s Recipes</h3>
+            )}
           </div>
             <div className="recipes-grid">
               {profile.recipes.length === 0 ? (
                 <div className="no-recipes-message">
-                  <p>You haven't added any recipes yet. Get started by sharing your first one!</p>
+                  {isOwner ? (
+                    <p>You haven't added any recipes yet. Get started by sharing your first one!</p>
+                  ) : (
+                    <p>This user hasn't shared any recipes yet.</p>
+                  )}
                 </div>
               ) : (
                       profile.recipes.map(recipe => (
@@ -385,6 +421,7 @@ const Profile = ({ user, onUpdate }) => {
                   className="user-recipe-card"
                   onClick={() => handleRecipeClick(recipe._id)}
                 >
+                {isOwner && (
                   <div className="recipe-actions">
                     <button 
                       className="recipe-options-btn"
@@ -403,6 +440,7 @@ const Profile = ({ user, onUpdate }) => {
                       </div>
                     )}
                   </div>
+                )}
                   <img  src={recipe.image} alt={recipe.name} className="recipe-image"/>
                   <div className="recipe-info">
                     <p>{recipe.title}</p>
@@ -433,7 +471,7 @@ const Profile = ({ user, onUpdate }) => {
                   onClick={(e) => {
               // Only navigate if the click wasn't on the unsubscribe button
                     if (!e.target.closest('.unsubscribe-btn')) {
-                      navigate(`/pprofile/${chef.id}`);
+                      navigate(`/profile/${chef.id}`);
                     }
                   }}
                 >

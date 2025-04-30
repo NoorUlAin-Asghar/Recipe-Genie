@@ -42,10 +42,9 @@ function App() {
 
         <Route path="/home" element={<Home/>} />
         <Route path="/recipe/:id" element={<RecipeDetail />} />
-        <Route path="/profile/:userId" element={<Profile />} />
+        <Route path="/profile/:userId" element={<Profile key="profile"/>} />
         <Route path="/sharerecipe" element={<ShareRecipeForm />} />
         <Route path="/usersearch" element={<UserSearch />} />
-        <Route path="/pprofile/:userId" element={<PProfile />} />
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register />} />
 

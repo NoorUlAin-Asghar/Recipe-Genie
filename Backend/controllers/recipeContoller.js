@@ -4,9 +4,8 @@ const User = require('../models/userModel')
 const mongoose=require('mongoose') 
 
 //GET all recipes
-const getAllRecipes= async(req,res)=>{
-    console.log('get all my recipes')
-    const userId=req.user._id
+const getAllRecipesOfAUser= async(req,res)=>{
+    const {userId} =req.params;
     try {
         const recipes = await Recipe.find({author:userId})
           .sort({ createdAt: -1 })
@@ -32,43 +31,67 @@ const getAllRecipes= async(req,res)=>{
       }
 }
 
-//GET a single recipe
-const getRecipe= async(req,res)=>{
-    console.log('getting a single recipe')
+//GET a single recipe (recipe details + author details +comment)
+const getRecipe = async (req, res) => {
+    console.log('getting a single recipe');
     const { recipeId } = req.params;
-        if(!mongoose.Types.ObjectId.isValid(recipeId)){
-            console.error('Incorrect Id');
-            return res.status(400).json({error: 'No such recipe'});
-        }
     
-        try {
-            const recipe = await Recipe.findById(recipeId)
+    if (!mongoose.Types.ObjectId.isValid(recipeId)) {
+        console.error('Incorrect Id');
+        return res.status(400).json({ error: 'No such recipe' });
+    }
+
+    try {
+        const recipe = await Recipe.findById(recipeId)
             .populate({
                 path: 'comments',
-                select: 'text createdAt author', // only select these fields from each comme
+                select: 'text createdAt author',
                 populate: {
-                path: 'author',
-                select: 'username' // or email, name, etc.
+                    path: 'author',
+                    select: 'name username profilePicture' // Include profileImage for comment authors
                 }
             })
-            .populate('author', 'username'); // if you also want the recipe creator
-    
-            if (!recipe || recipe.length===0) {
-                console.log('Recipe not found')
-                return res.status(404).json({ error: 'Recipe not found' });
-            }
-            // Convert likes array to the number of likes (length of the array)
-            const recipeWithLikesCount = {
-                ...recipe.toObject(), // Convert Mongoose document to a plain object
-                likes: recipe.likes.length // Replace the 'likes' array with the count
-            };
-            res.status(200).json(recipeWithLikesCount);
-            console.log('Got recipe details with comments successfully')
-        } catch (error) {
-            console.error('Error fetching recipe details:', error);
-            res.status(500).json({ error: 'Server error while fetching recipe details' });
+            .populate({
+                path: 'author',
+                select: 'name username profilePicture bio' // Include all needed author fields
+            });
+
+        if (!recipe) {
+            console.log('Recipe not found');
+            return res.status(404).json({ error: 'Recipe not found' });
         }
-}
+
+        // Format the response
+        const response = {
+            ...recipe.toObject(),
+            author: {
+                id: recipe.author._id,
+                name:recipe.author.name,
+                username: recipe.author.username,
+                profilePicture: recipe.author.profilePicture,
+                bio: recipe.author.bio
+            },
+            likes: recipe.likes.length,
+            comments: recipe.comments.map(comment => ({
+                id: comment._id,
+                text: comment.text,
+                createdAt: comment.createdAt,
+                author: {
+                    id: comment.author._id,
+                    name: comment.author.name,
+                    username: comment.author.username,
+                    profilePicture: comment.author.profilePicture
+                }
+            }))
+        };
+
+        console.log('Got recipe details + author with comments successfully');
+        res.status(200).json(response);
+    } catch (error) {
+        console.error('Error fetching recipe details:', error);
+        res.status(500).json({ error: 'Server error while fetching recipe details' });
+    }
+};
 
 //GET a recipe by title
 const getRecipeByTitle = async (req, res) => {
@@ -173,29 +196,31 @@ const createRecipe = async (req,res)=>{
 }
 
 //DELETE a recipe
-const deleteRecipe=async(req,res)=>{
-    const {recipeId}=req.params;
-    if(!mongoose.Types.ObjectId.isValid(recipeId)){
+const deleteRecipe = async (req, res) => {
+    const { recipeId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(recipeId)) {
         console.error('Incorrect Id');
-        return res.status(400).json({error: 'No such recipe'});
-    }
-    try{
-        const recipe=await Recipe.findByIdAndDelete(recipeId);
-        if(recipe){
-            res.status(200).json(recipe);
-            console.log('Deleted recipe successfully',recipe);
-        }
-        else{
-            console.error('No recipe exists');
-            return res.status(404).json({error: 'No such recipe'});
-        }
-    }
-    catch(error){
-        console.error('error deleting recipe: ',error);
-        res.status(500).json({ error: 'Server error while deleting recipe' });
+        return res.status(400).json({ error: 'No such recipe' });
     }
 
-}
+    try {
+        const recipe = await Recipe.findByIdAndDelete(recipeId);
+        if (recipe) {
+            // Delete all comments related to the recipe
+            await Comment.deleteMany({ recipeId });
+
+            console.log('Deleted recipe and related comments successfully', recipe);
+            return res.status(200).json(recipe);
+        } else {
+            console.error('No recipe exists');
+            return res.status(404).json({ error: 'No such recipe' });
+        }
+    } catch (error) {
+        console.error('Error deleting recipe: ', error);
+        return res.status(500).json({ error: 'Server error while deleting recipe' });
+    }
+};
 
 //UPDATE a recipe
 const updateRecipe = async (req, res) => {
@@ -260,7 +285,7 @@ const updateRecipe = async (req, res) => {
 
 module.exports={
     createRecipe,
-    getAllRecipes,
+    getAllRecipesOfAUser,
     getRecipe,
     getRecipeByTitle,
     getPopularRecipes,

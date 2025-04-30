@@ -152,7 +152,9 @@
   gap: 20px;
 }
 
+/* Updated Recipe Card Styles */
 .user-recipe-card {
+  position: relative; /* Added for absolute positioning of child elements */
   background: #fff;
   border: 1px solid #eee;
   border-radius: 15px;
@@ -165,12 +167,81 @@
   transform: scale(1.03);
 }
 
+/* Recipe Image Container */
 .user-recipe-card img {
   width: 100%;
   height: 160px;
   object-fit: cover;
+  display: block; /* Remove any extra space below image */
 }
 
+/* Recipe Actions (3-dot menu) - UPDATED */
+.recipe-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10; /* Ensure it's above the image */
+}
+
+.recipe-options-btn {
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.recipe-options-btn:hover {
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  transform: scale(1.1);
+}
+
+/* Dropdown Menu - UPDATED */
+.recipe-dropdown {
+  position: absolute;
+  right: 0;
+  top: 40px; /* Position below the button */
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.recipe-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  font-size: 14px;
+}
+
+.recipe-dropdown button:hover {
+  background: #f5f5f5;
+}
+
+.recipe-dropdown button i {
+  width: 16px;
+  text-align: center;
+}
+
+/* Recipe Info (rest remains the same) */
 .recipe-info {
   padding: 12px;
   text-align: left;
@@ -193,7 +264,6 @@
   color: #ff6868;
   margin-right: 5px;
 }
-
   /* Right side - Subscriptions sidebar */
   .profile-sidebar {
     flex: 1;
@@ -332,7 +402,7 @@
     background: #f9f9f9;
     border-radius: 8px;
   }
-  /* Recipe Actions Dropdown */
+  /* Recipe Actions Dropdown
 .recipe-actions {
   position: relative;
   text-align: right;
@@ -371,7 +441,7 @@
 
 .recipe-dropdown button:hover {
   background: #f5f5f5;
-}
+} */
 
 /* Edit Recipe Modal */
 .edit-recipe-modal {
