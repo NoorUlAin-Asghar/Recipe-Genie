@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/navbar';
+import { getRecipe } from '../api';
 import '../Home.css';
 
 const RecipeDetail = () => {
@@ -18,24 +19,23 @@ const RecipeDetail = () => {
 
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [recipeAuthor, setRecipeAuthor] = useState({
-    id: 1,
-    name: 'Chef Raj',
-    bio: 'Professional chef with 10 years of experience',
-    avatar: require('../assetss/images/biryani.png')
+    id: '',
+    name: '',
+    bio: '',
+    avatar: '',
   });
 
   // Sample recipe data
   const dummyRecipes = [
     { 
-      id: 1, 
-      name: 'Chicken Curry', 
-      authorId: 1,
-      likes: 100, 
-      time: 30,
-      image: require('../assetss/images/chh.jpg'),
-      description: 'Delicious spicy chicken curry with aromatic spices',
-      ingredients: ['Chicken', 'Onion', 'Tomato', 'Ginger', 'Garlic', 'Spices'],
-      instructions: ['Marinate chicken', 'Sauté onions', 'Add tomatoes', 'Cook with spices']
+      id: '', 
+      name: '', 
+      likes: 0, 
+      time: 0,
+      image: '',
+      description: '',
+      ingredients: [],
+      instructions: []
     },
   ];
 
@@ -45,11 +45,11 @@ const RecipeDetail = () => {
     return savedLikes[id] || false;
   });
   //const [liked, setLiked] = useState(false);
-  //const [likes, setLikes] = useState(recipe.likes);
-  const [likes, setLikes] = useState(() => {
-    const savedLikesCount = JSON.parse(localStorage.getItem('recipeLikesCount') || '{}');
-    return savedLikesCount[id] || recipe.likes;
-  });
+  const [likes, setLikes] = useState(recipe.likes);
+  // const [likes, setLikes] = useState(() => {
+  //   const savedLikesCount = JSON.parse(localStorage.getItem('recipeLikesCount') || '{}');
+  //   return savedLikesCount[id] || recipe.likes;
+  // });
   // Check subscription status on component mount
   useEffect(() => {
     const savedSubs = JSON.parse(localStorage.getItem('subscriptions')) || [];

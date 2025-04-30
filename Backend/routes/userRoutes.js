@@ -8,12 +8,12 @@ const {
     getUserByUsername,
     // registerUser,
     updateMyProfile,
-    getMyProfile
+    getProfile
 }=require('../controllers/userController')
 
 router.use(verifyToken)
 
-router.get("/myProfile", getMyProfile); // get my own profile  
+router.get("/profile/:userId", getProfile); // get my own profile  
 router.patch("/myProfile",upload.single('image'), updateMyProfile); // edit my own profile
 
 //GET User by name
