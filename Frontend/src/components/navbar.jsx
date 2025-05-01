@@ -15,7 +15,8 @@ const Navbar = () => {
       setUsername(user.data.username);
     }
   }, []);
-  //redirect to login if no user in local storage
+
+  // Redirect to login if no user in local storage
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
@@ -27,7 +28,7 @@ const Navbar = () => {
     <nav className="navbar">
       {/* Logo and Title */}
       <div className="navbar-brand">
-        <img src={logo} alt="Logo" className="logo-img"/>
+        <img src={logo} alt="Logo" className="logo-img" />
         <h1 className="navbar-title">Recipe Genie</h1>
       </div>
 
@@ -37,18 +38,21 @@ const Navbar = () => {
         <Link to="/chatbot" className="navbar-link">Chatbot</Link>
         <Link to="/usersearch" className="navbar-link">User Search</Link>
         <Link to="/sharerecipe" className="navbar-link">
-        
-            <i className="fas fa-plus"></i> Share Recipe
+          <i className="fas fa-plus"></i> Share Recipe
         </Link>
-        <Link to="/Profile" className="navbar-link">{username ? (<span>😊{username}</span>) : ( <span>Loading...</span>)}</Link>
+        <Link to="/profile" className="navbar-link">
+          {username ? (<span>😊{username}</span>) : (<span>Loading...</span>)}
+        </Link>
+        <Link to="/documentation" className="navbar-link">FAQ</Link> {/* Add this link */}
         <Link to="/login" className="navbar-link login-link" 
-            onClick={(e) => {
-              e.preventDefault();
-              localStorage.removeItem('user');
-              window.location.replace('/login'); // Hard redirect
-            }}
-          >Logout</Link>
-        
+          onClick={(e) => {
+            e.preventDefault();
+            localStorage.removeItem('user');
+            window.location.replace('/login'); // Hard redirect
+          }}
+        >
+          Logout
+        </Link>
       </div>
     </nav>
   );

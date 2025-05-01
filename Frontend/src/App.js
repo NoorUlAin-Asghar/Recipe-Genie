@@ -7,7 +7,8 @@ import PProfile from './pages/pprofile';
 import UserSearch from './pages/usersearch';
 import Login from './pages/login';
 import Register from './pages/register';
-import AIChat from './pages/Ai'; //import AI chat component
+import AIChat from './pages/Ai'; // Import AI chat component
+import DocumentationPage from './pages/DocumentationPage'; // Import DocumentationPage component
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/chatbot" element={<AIChat />} /> {/* AI chat route */}
+        <Route path="/documentation" element={<DocumentationPage />} /> {/* Documentation page route */}
       </Routes>
     </BrowserRouter>
   );

@@ -1,0 +1,85 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    color: #333333;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .documentation-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .header {
+    background-color: #ff9500;
+    color: #ffffff;
+    padding: 10px 20px;
+    text-align: center;
+  }
+  
+  .header h1 {
+    margin: 0;
+  }
+  
+  .main-content {
+    margin-top: 20px;
+  }
+  
+  .section-title {
+    color: #ff9500;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .faq-section, .help-section {
+    margin-bottom: 30px;
+  }
+  
+  .faq-item {
+    margin-bottom: 15px;
+  }
+  
+  .faq-question {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .faq-answer {
+    font-size: 16px;
+    color: #666666;
+  }
+  
+  .help-info {
+    font-size: 16px;
+    color: #666666;
+  }
+  
+  .contact-info {
+    margin-top: 10px;
+  }
+  
+  .contact-info p {
+    margin: 5px 0;
+  }
+  
+  .contact-info a {
+    color: #ff9500;
+    text-decoration: none;
+  }
+  
+  .contact-info a:hover {
+    text-decoration: underline;
+  }
+  
+  .footer {
+    background-color: #ff9500;
+    color: #ffffff;
+    text-align: center;
+    padding: 10px 20px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
