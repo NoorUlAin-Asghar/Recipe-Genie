@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../Ai.css';
 import {
   FiSearch, FiStar, FiHeart, FiClock, FiHome,
@@ -11,6 +12,7 @@ function App() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
 
   const recentChats = [
     'How can I increase the number of servings?',
@@ -19,7 +21,9 @@ function App() {
   ];
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
 
   const handleSendMessage = async () => {
@@ -96,7 +100,9 @@ function App() {
         </div>
 
         <div className="user-profile">
-          <FiUser /> User Profile
+          <button className="user-profile-button" onClick={() => navigate('/profile')}>
+            <FiUser className="icon" /> User Profile
+          </button>
         </div>
       </div>
 
@@ -107,7 +113,6 @@ function App() {
         </div>
 
         <div className="chat-container">
-            
           <div className="assistance-section">
             <h2>How can we assist you today?</h2>
             <p>Get expert guidance powered by AI agents specializing in recipe finding, ingredient scaling, and cooking tactics.</p>
@@ -124,37 +129,37 @@ function App() {
             ) : (
               <>
                 {messages.map((msg, i) => (
-  <div
-    key={i}
-    style={{
-      padding: '12px 16px',
-      borderRadius: '18px',
-      lineHeight: '1.4',
-      wordBreak: 'break-word',
-      backgroundColor: msg.sender === 'user' ? '#FF6B35' : '#FFE5D4',
-      color: msg.sender === 'user' ? 'white' : '#2D3436',
-      marginLeft: msg.sender === 'user' ? 'auto' : '0',
-      marginRight: msg.sender === 'user' ? '0' : 'auto',
-      maxWidth: '70%',
-    }}
-  >
-    {msg.text}
-  </div>
-))}
-                <div ref={messagesEndRef} />
+                  <div
+                    key={i}
+                    ref={i === messages.length - 1 ? messagesEndRef : null}
+                    style={{
+                      padding: '12px 16px',
+                      borderRadius: '18px',
+                      lineHeight: '1.4',
+                      wordBreak: 'break-word',
+                      backgroundColor: msg.sender === 'user' ? '#FF6B35' : '#FFE5D4',
+                      color: msg.sender === 'user' ? 'white' : '#2D3436',
+                      marginLeft: msg.sender === 'user' ? 'auto' : '0',
+                      marginRight: msg.sender === 'user' ? '0' : 'auto',
+                      maxWidth: '70%',
+                    }}
+                  >
+                    {msg.text}
+                  </div>
+                ))}
               </>
             )}
           </div>
 
           <div className="input-section">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your cooking question here..."
-            disabled={isLoading}
-          />
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your cooking question here..."
+              disabled={isLoading}
+            />
             <button
               onClick={handleSendMessage}
               disabled={isLoading || !input.trim()}
