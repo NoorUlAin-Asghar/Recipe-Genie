@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/navbar';
+import beepSound from '../assetss/beep.mp3'; // Import the beep sound
 import '../Home.css';
 
 const RecipeDetail = () => {
@@ -18,7 +19,6 @@ const RecipeDetail = () => {
     avatar: require('../assetss/images/biryani.png')
   });
 
-  // Sample recipe data
   const dummyRecipes = [
     { 
       id: 1, 
@@ -53,13 +53,11 @@ const RecipeDetail = () => {
     const savedLikes = JSON.parse(localStorage.getItem('recipeLikes') || '{}');
     const newLikedState = !liked;
     
-    // Update localStorage
     localStorage.setItem('recipeLikes', JSON.stringify({
       ...savedLikes,
       [id]: newLikedState
     }));
   
-    // Update state
     setLiked(newLikedState);
     setLikes(prevLikes => newLikedState ? prevLikes + 1 : prevLikes - 1);
   };
@@ -130,6 +128,7 @@ const RecipeDetail = () => {
             ...prev,
             isRunning: false
           }));
+          playBeep();
         }
       }, 1000);
     }
@@ -142,6 +141,11 @@ const RecipeDetail = () => {
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const playBeep = () => {
+    const audio = new Audio(beepSound);
+    audio.play();
   };
 
   const handleCommentSubmit = (e) => {
@@ -161,11 +165,9 @@ const RecipeDetail = () => {
     const savedSubs = JSON.parse(localStorage.getItem('subscriptions')) || [];
     
     if (isSubscribed) {
-      // Unsubscribe
       const updatedSubs = savedSubs.filter(chef => chef.id !== recipeAuthor.id);
       localStorage.setItem('subscriptions', JSON.stringify(updatedSubs));
     } else {
-      // Subscribe
       const updatedSubs = [...savedSubs, recipeAuthor];
       localStorage.setItem('subscriptions', JSON.stringify(updatedSubs));
     }
