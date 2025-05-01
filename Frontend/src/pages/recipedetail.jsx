@@ -8,12 +8,6 @@ const RecipeDetail = () => {
   const { id } = useParams();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
-  const [timer, setTimer] = useState({
-    isRunning: false,
-    startTime: null,
-    elapsed: 0,
-    totalDuration: 0
-  });
   const navigate = useNavigate();
 
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -44,18 +38,16 @@ const RecipeDetail = () => {
     const savedLikes = JSON.parse(localStorage.getItem('recipeLikes') || '{}');
     return savedLikes[id] || false;
   });
-  //const [liked, setLiked] = useState(false);
-  //const [likes, setLikes] = useState(recipe.likes);
+
   const [likes, setLikes] = useState(() => {
     const savedLikesCount = JSON.parse(localStorage.getItem('recipeLikesCount') || '{}');
     return savedLikesCount[id] || recipe.likes;
   });
-  // Check subscription status on component mount
+
   useEffect(() => {
     const savedSubs = JSON.parse(localStorage.getItem('subscriptions')) || [];
     setIsSubscribed(savedSubs.some(chef => chef.id === recipeAuthor.id));
   }, [recipeAuthor.id]);
-
 
   const handleLikeClick = () => {
     const savedLikes = JSON.parse(localStorage.getItem('recipeLikes') || '{}');
@@ -71,6 +63,7 @@ const RecipeDetail = () => {
     setLiked(newLikedState);
     setLikes(prevLikes => newLikedState ? prevLikes + 1 : prevLikes - 1);
   };
+
   useEffect(() => {
     const savedLikesCount = JSON.parse(localStorage.getItem('recipeLikesCount') || '{}');
     localStorage.setItem('recipeLikesCount', JSON.stringify({
@@ -78,75 +71,78 @@ const RecipeDetail = () => {
       [id]: likes
     }));
   }, [likes, id]);
-  /* const handleLikeClick = () => {
-    if (liked) {
-      setLiked(false);
-      setLikes(prevLikes => prevLikes - 1);
-    } else {
-      setLiked(true);
-      setLikes(prevLikes => prevLikes + 1);
-    }
-  };*/
 
-  // Timer functions
-  const startTimer = () => {
-    if (!timer.isRunning) {
-      setTimer(prev => ({
-        ...prev,
-        isRunning: true,
-        startTime: Date.now() - prev.elapsed,
-        totalDuration: recipe.time * 60 * 1000
-      }));
-    }
-  };
-
-  const pauseTimer = () => {
-    if (timer.isRunning) {
-      setTimer(prev => ({
-        ...prev,
-        isRunning: false,
-        elapsed: Date.now() - prev.startTime
-      }));
-    }
-  };
+  const [timer, setTimer] = useState({
+    isRunning: false,
+    startTime: null,
+    elapsed: 0,
+    totalDuration: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
 
   const resetTimer = () => {
     setTimer({
       isRunning: false,
       startTime: null,
       elapsed: 0,
-      totalDuration: recipe.time * 60 * 1000
+      totalDuration: recipe.time * 60 * 1000,
+      hours: Math.floor(recipe.time / 60),
+      minutes: recipe.time % 60,
+      seconds: 0
     });
   };
 
-  // Timer effect
+  const startTimer = () => {
+    if (!timer.isRunning) {
+      const totalSeconds = 
+        timer.hours * 3600 + 
+        timer.minutes * 60 + 
+        timer.seconds;
+      setTimer(prev => ({
+        ...prev,
+        isRunning: true,
+        startTime: Date.now(),
+        totalDuration: totalSeconds * 1000
+      }));
+    }
+  };
+
   useEffect(() => {
     let interval;
     if (timer.isRunning) {
       interval = setInterval(() => {
         const now = Date.now();
+        let newElapsedTime = now - timer.startTime;
+        newElapsedTime = Math.max(newElapsedTime, 0);
+        const newRemainingTime = timer.totalDuration - newElapsedTime;
+        
         setTimer(prev => ({
           ...prev,
-          elapsed: now - prev.startTime
+          elapsed: newElapsedTime,
+          remainingTime: newRemainingTime
         }));
+
+        if (newRemainingTime <= 0) {
+          clearInterval(interval);
+          setTimer(prev => ({
+            ...prev,
+            isRunning: false
+          }));
+        }
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [timer.isRunning]);
+  }, [timer.isRunning, timer.startTime, timer.totalDuration]);
 
-  // Format time display
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
-
-  // Calculate if user took longer than recipe time
-  const isOvertime = timer.elapsed > timer.totalDuration;
-  const overtimeMinutes = isOvertime 
-    ? Math.floor((timer.elapsed - timer.totalDuration) / 60000)
-    : 0;
 
   const handleCommentSubmit = (e) => {
     e.preventDefault();
@@ -205,13 +201,11 @@ const RecipeDetail = () => {
           </span>
         </div>
 
-        {/* Author Section with Subscribe Button */}
-                
-        {<div className="author-section">
+        <div className="author-section">
           <div 
-          className="author-info"
-          style={{ cursor: 'pointer' }} 
-          onClick={() => navigate(`/pprofile/${recipeAuthor.id}`)}
+            className="author-info"
+            style={{ cursor: 'pointer' }} 
+            onClick={() => navigate(`/pprofile/${recipeAuthor.id}`)}
           >
             <img src={recipeAuthor.avatar} alt={recipeAuthor.name} className="author-avatar" />
             <div>
@@ -225,13 +219,41 @@ const RecipeDetail = () => {
           >
             {isSubscribed ? 'Subscribed' : 'Subscribe'}
           </button>
-        </div>}
+        </div>
 
-        {/* Timer Section */}
         <div className="timer-section">
           <h3>Cooking Timer</h3>
+          
+          {/* Input fields for timer */}
+          <div className="timer-inputs">
+            <input
+              type="number"
+              value={timer.hours}
+              onChange={(e) => setTimer({...timer, hours: parseInt(e.target.value)})}
+              min="0"
+              max="99"
+            />
+            <span>:</span>
+            <input
+              type="number"
+              value={timer.minutes}
+              onChange={(e) => setTimer({...timer, minutes: parseInt(e.target.value)})}
+              min="0"
+              max="59"
+            />
+            <span>:</span>
+            <input
+              type="number"
+              value={timer.seconds}
+              onChange={(e) => setTimer({...timer, seconds: parseInt(e.target.value)})}
+              min="0"
+              max="59"
+            />
+          </div>
+          
+          {/* Timer display */}
           <div className="timer-display">
-            {formatTime(timer.elapsed)}
+            {formatTime(timer.isRunning ? timer.totalDuration - timer.elapsed : timer.totalDuration)}
           </div>
           
           <div className="timer-controls">
@@ -240,7 +262,7 @@ const RecipeDetail = () => {
                 <i className="fas fa-play"></i> Start
               </button>
             ) : (
-              <button onClick={pauseTimer} className="timer-button">
+              <button onClick={() => setTimer({...timer, isRunning: false})} className="timer-button">
                 <i className="fas fa-pause"></i> Pause
               </button>
             )}
@@ -248,12 +270,6 @@ const RecipeDetail = () => {
               <i className="fas fa-redo"></i> Reset
             </button>
           </div>
-
-          {isOvertime && (
-            <div className="timer-message">
-              <p>You took {overtimeMinutes} minute(s) longer than the recipe time!</p>
-            </div>
-          )}
         </div>
 
         <div className="detail-section">
