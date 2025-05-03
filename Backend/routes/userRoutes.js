@@ -6,9 +6,13 @@ const {
     getUserByName,
     getUserById,
     getUserByUsername,
-    // registerUser,
     updateMyProfile,
-    getProfile
+    getProfile,
+    followUser,
+    unfollowUser,
+    isFollowingUser,
+    getAllFollowers,
+    getAllFollowing
 }=require('../controllers/userController')
 
 router.use(verifyToken)
@@ -22,5 +26,17 @@ router.get("/search/by-name",getUserByName);
 router.get("/search/by-username",getUserByUsername);
 //GET User by Id
 router.get("/userProfile/:userId",getUserById)
+
+//follow user
+router.patch("/follow/:userId",followUser);
+//unfollow user
+router.patch("/unfollow/:userId",unfollowUser)
+//get following status
+router.get("/is-following/:userId",isFollowingUser);
+
+//get all followers of a user
+router.get("/followers/:userId",getAllFollowers);
+//get all followings of a user
+router.get("/following/:userId",getAllFollowing);
 
 module.exports=router;

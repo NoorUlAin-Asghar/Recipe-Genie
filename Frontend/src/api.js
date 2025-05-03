@@ -31,5 +31,13 @@ API.interceptors.request.use((req) => {
   export const getProfile = (userId) => API.get(`/users/profile/${userId}`);
   export const updateMyProfile = (data) => API.patch('/users/myProfile', data) ;
 
+  export const createComment=(recipeId,data)=>API.post(`/comments/${recipeId}`,data);
+
+  export const followingStatus=(userId)=>API.get(`/users/is-following/${userId}`);
+  export const followUser=(userId)=>API.patch(`/users/follow/${userId}`);
+  export const unfollowUser=(userId)=>API.patch(`/users/unfollow/${userId}`);
+
+  export const getFollowers=(userId)=>API.get(`/users/followers/${userId}`);
+  export const getFollowing=(userId)=>API.get(`/users/following/${userId}`);
 
   //export const likeRecipe = (id) => API.post(`/recipes/${id}/like`);

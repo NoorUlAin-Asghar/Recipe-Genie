@@ -85,7 +85,7 @@ const getRecipe = async (req, res) => {
             }))
         };
 
-        console.log('Got recipe details + author with comments successfully');
+        console.log('Got recipe details + author with comments successfully',response);
         res.status(200).json(response);
     } catch (error) {
         console.error('Error fetching recipe details:', error);

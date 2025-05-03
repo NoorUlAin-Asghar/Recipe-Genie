@@ -13,7 +13,7 @@ const createComment = async (req, res) => {
     }
   
     try {
-        const comment = await Comment.create({  author: req.userId, text, recipeId: recipeId });
+        const comment = await Comment.create({  author: req.user._id, text, recipeId: recipeId });
     
         // Add this comment's ID to the Recipe
         await Recipe.findByIdAndUpdate(recipeId, {

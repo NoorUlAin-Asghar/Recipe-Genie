@@ -172,13 +172,140 @@ const updateMyProfile = async (req, res) => {
     }
 };
 
+const isFollowingUser = async (req, res) => {
+    try {
+      const currentUserId = req.user._id;
+      const targetUserId = req.params.userId;
+  
+      if (!currentUserId || !targetUserId) {
+        return res.status(400).json({ message: "Missing user ID(s)." });
+      }
+  
+      const currentUser = await User.findById(currentUserId);
+  
+      if (!currentUser) {
+        return res.status(404).json({ message: "Current user not found." });
+      }
+  
+      const isFollowing = currentUser.subscriptions.includes(targetUserId);
+      console.log("following status: ",isFollowing);
+      res.status(200).json({ isFollowing });
+    } catch (err) {
+      res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+  
 
+// Follow a user
+const followUser =async (req, res) => {
+    try {
+      const currentUserId =req.user._id
+      const targetUserId = req.params.userId;
+  
+      if (currentUserId === targetUserId) {
+        return res.status(400).json({ message: "You can't follow yourself." });
+      }
+  
+      const currentUser = await User.findById(currentUserId);
+      const targetUser = await User.findById(targetUserId);
+  
+      if (!targetUser || !currentUser) {
+        return res.status(404).json({ message: "User not found." });
+      }
+  
+      // Check if already following
+      if (currentUser.subscriptions.includes(targetUserId)) {
+        return res.status(400).json({ message: "Already following this user." });
+      }
+  
+      currentUser.subscriptions.push(targetUserId);
+      targetUser.followers.push(currentUserId);
+  
+      await currentUser.save();
+      await targetUser.save();
+  
+      res.status(200).json({ message: "Successfully followed the user." });
+      console.log("Successfully followed the user");
+    } catch (err) {
+      res.status(500).json({ message: "Server error", error: err.message });
+      console.log(err)
+    }
+  };
+  
+  // Unfollow a user
+  const unfollowUser= async (req, res) => {
+    try {
+        const currentUserId = req.user._id;
+        const targetUserId = req.params.userId;
+  
+        const currentUser = await User.findById(currentUserId);
+        const targetUser = await User.findById(targetUserId);
+    
+        if (!targetUser || !currentUser) {
+            return res.status(404).json({ message: "User not found." });
+        }
+        // Check if currentUser is actually following targetUser
+        const isFollowing = currentUser.subscriptions.includes(targetUserId);
+        if (!isFollowing) {
+        return res.status(400).json({ message: "You are not following this user." });
+        }
+        await User.findByIdAndUpdate(currentUserId, {
+            $pull: { subscriptions: targetUserId }
+        });
+        
+        await User.findByIdAndUpdate(targetUserId, {
+            $pull: { followers: currentUserId }
+        });
+  
+        res.status(200).json({ message: "Successfully unfollowed the user." });
+        console.log("Successfully followed the user");
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+        console.log(err)
+    }
+  };
+  
+    const getAllFollowers= async (req, res) => {
+        try {
+        const user = await User.findById(req.params.userId).populate(
+            {
+                path: "followers", 
+                select: "name username profilePicture"
+            });
+        res.json(user.followers);
+        console.log("followers: ",user.followers)
+        } catch (error) {
+        res.status(500).json({ error: "Server error" });
+        console.log(error)
+        }
+    };
+
+    const getAllFollowing= async (req, res) => {
+        try {
+          const user = await User.findById(req.params.userId).populate(
+            {
+                path: "subscriptions", 
+                select: "name username profilePicture"
+            });
+          res.json(user.subscriptions);
+          console.log("Subscriptions:" ,user.subscriptions)
+        } catch (error) {
+          res.status(500).json({ error: "Server error" });
+          console.log(error)
+        }
+    };
+      
+  
 
 module.exports={
     getUserByName,
     getUserByUsername,
     getUserById,
-    // registerUser,
     updateMyProfile,
-    getProfile
+    getProfile,
+    followUser,
+    unfollowUser,
+    isFollowingUser,
+    getAllFollowers,
+    getAllFollowing
 } 

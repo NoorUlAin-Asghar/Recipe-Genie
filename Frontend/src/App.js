@@ -1,30 +1,8 @@
-/*import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './pages/home';
-//import Login from './pages/login';
-//import Register from './pages/register'; 
-
-
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} /> 
-        
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default App;*/
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/home';
 import RecipeDetail from './pages/recipedetail';
 import Profile from './pages/Profile'; 
 import ShareRecipeForm from'./pages/sharerecipe';
-import PProfile from './pages/pprofile';
 import UserSearch from './pages/usersearch';
 import Login from './pages/login';
 import Register from './pages/register'; 
@@ -41,7 +19,7 @@ function App() {
         <Route path="/"  element={<Navigate to="/login" />} />
 
         <Route path="/home" element={<Home/>} />
-        <Route path="/recipe/:id" element={<RecipeDetail />} />
+        <Route path="/recipe/:recipeId" element={<RecipeDetail />} />
         <Route path="/profile/:userId" element={<Profile key="profile"/>} />
         <Route path="/sharerecipe" element={<ShareRecipeForm />} />
         <Route path="/usersearch" element={<UserSearch />} />
