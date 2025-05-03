@@ -2,11 +2,14 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/navbar';
-import { getRecipe } from '../api';
+import LoadingScreen from '../components/loadingScreen'
+import FollowButton from '../components/FollowButton';
+import { getRecipe, createComment} from '../api';
 import '../Home.css';
 
 const RecipeDetail = () => {
-  const { id } = useParams();
+  const { recipeId } = useParams();
+  const navigate = useNavigate();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [timer, setTimer] = useState({
@@ -15,46 +18,84 @@ const RecipeDetail = () => {
     elapsed: 0,
     totalDuration: 0
   });
-  const navigate = useNavigate();
-
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [recipeAuthor, setRecipeAuthor] = useState({
     id: '',
     name: '',
     bio: '',
     avatar: '',
   });
+  const [recipe,setRecipe]=useState({
+    id: '', 
+    name: '', 
+    likes: 0, 
+    time: 0,
+    serving: 0,
+    image: '',
+    description: '',
+    ingredients: [],
+    instructions: []
+  });
+  const [loading, setLoading] = useState(true);   // Loading state to track data fetching
+  const [errorMessage, setErrorMessage] = useState('');
+  const [currentUserId, setCurrentUserId] = useState('');
+  const isOwner = currentUserId === recipeAuthor.id;
 
-  // Sample recipe data
-  const dummyRecipes = [
-    { 
-      id: '', 
-      name: '', 
-      likes: 0, 
-      time: 0,
-      image: '',
-      description: '',
-      ingredients: [],
-      instructions: []
-    },
-  ];
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+      if(user?.data?.userid){
+        setCurrentUserId(user.data.userid);
+      }
+    }, []);
 
-  const recipe = dummyRecipes.find(r => r.id === parseInt(id));
+  useEffect(() => {
+      const fetchRecipe = async () => {
+        try {
+          if (!recipeId) return;
+          
+          setLoading(true);
+          console.log("Fetching recipe:", recipeId);
+          
+          const response = await getRecipe(recipeId)
+          console.log(response)
+          const recipeResponse = {
+            name: response.data.title,
+            likes: response.data.likes,
+            time: response.data.cookTime,
+            serving: response.data.serving,
+            image: response.data.image,
+            description: response.data.description,
+            ingredients: response.data.ingredients,
+            instructions: response.data.instructions,
+          };
+          const authorResponse={
+            id:response.data.author.id,
+            name: response.data.author.name,
+            username: response.data.author.username,
+            avatar: response.data.author.profilePicture,
+            bio: response.data.author.bio
+          };
+  
+          setRecipe(recipeResponse);
+          setRecipeAuthor(authorResponse);
+          setComments(response.data.comments);
+  
+        } catch (error) {
+          console.error('Failed to fetch recipe:', error);
+          setErrorMessage(error?.response?.data?.message || 'Failed to load recipe');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+    fetchRecipe();
+  }, [recipeId]);
+ 
+
   const [liked, setLiked] = useState(() => {
     const savedLikes = JSON.parse(localStorage.getItem('recipeLikes') || '{}');
-    return savedLikes[id] || false;
+    return savedLikes[recipeId] || false;
   });
-  //const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(recipe.likes);
-  // const [likes, setLikes] = useState(() => {
-  //   const savedLikesCount = JSON.parse(localStorage.getItem('recipeLikesCount') || '{}');
-  //   return savedLikesCount[id] || recipe.likes;
-  // });
-  // Check subscription status on component mount
-  useEffect(() => {
-    const savedSubs = JSON.parse(localStorage.getItem('subscriptions')) || [];
-    setIsSubscribed(savedSubs.some(chef => chef.id === recipeAuthor.id));
-  }, [recipeAuthor.id]);
 
 
   const handleLikeClick = () => {
@@ -64,7 +105,7 @@ const RecipeDetail = () => {
     // Update localStorage
     localStorage.setItem('recipeLikes', JSON.stringify({
       ...savedLikes,
-      [id]: newLikedState
+      [recipeId]: newLikedState
     }));
   
     // Update state
@@ -75,18 +116,9 @@ const RecipeDetail = () => {
     const savedLikesCount = JSON.parse(localStorage.getItem('recipeLikesCount') || '{}');
     localStorage.setItem('recipeLikesCount', JSON.stringify({
       ...savedLikesCount,
-      [id]: likes
+      [recipeId]: likes
     }));
-  }, [likes, id]);
-  /* const handleLikeClick = () => {
-    if (liked) {
-      setLiked(false);
-      setLikes(prevLikes => prevLikes - 1);
-    } else {
-      setLiked(true);
-      setLikes(prevLikes => prevLikes + 1);
-    }
-  };*/
+  }, [likes, recipeId]);
 
   // Timer functions
   const startTimer = () => {
@@ -148,36 +180,43 @@ const RecipeDetail = () => {
     ? Math.floor((timer.elapsed - timer.totalDuration) / 60000)
     : 0;
 
-  const handleCommentSubmit = (e) => {
-    e.preventDefault();
-    if (newComment.trim()) {
-      setComments([...comments, {
-        id: Date.now(),
-        text: newComment,
-        author: 'You',
-        timestamp: new Date().toLocaleString()
-      }]);
+  const handleCommentSubmit = async (e) => {
+    console.log(newComment)
+    if (!newComment.trim()) return;
+    try {
+      //Prepare and send data
+      const formattedComment ={'text': newComment.trim()}
+      console.log(formattedComment)
+  
+      const response = await createComment(recipeId, formattedComment);
+      console.log(response);
       setNewComment('');
     }
-  };
-
-  const toggleSubscription = () => {
-    const savedSubs = JSON.parse(localStorage.getItem('subscriptions')) || [];
-    
-    if (isSubscribed) {
-      // Unsubscribe
-      const updatedSubs = savedSubs.filter(chef => chef.id !== recipeAuthor.id);
-      localStorage.setItem('subscriptions', JSON.stringify(updatedSubs));
-    } else {
-      // Subscribe
-      const updatedSubs = [...savedSubs, recipeAuthor];
-      localStorage.setItem('subscriptions', JSON.stringify(updatedSubs));
+    catch (error) {
+      console.error('Failed to post comment:', error);
+      // Optionally show an error message to the user
     }
-    
-    setIsSubscribed(!isSubscribed);
   };
 
-  if (!recipe) return <div>Recipe not found</div>;
+  useEffect(() => {
+    console.log('Comment: ', newComment);
+  }, [newComment]);
+
+  if (loading) {
+    return <LoadingScreen/>
+  }
+
+  if (errorMessage) {
+    return (
+      <div className="profile-page">
+        <Navbar />
+        <div className="error-message">
+          <h2>Oops!</h2>
+          <p>{errorMessage}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="recipe-detail-page">
@@ -207,25 +246,19 @@ const RecipeDetail = () => {
 
         {/* Author Section with Subscribe Button */}
                 
-        {<div className="author-section">
-          <div 
-          className="author-info"
-          style={{ cursor: 'pointer' }} 
-          onClick={() => navigate(`/pprofile/${recipeAuthor.id}`)}
-          >
+        <div className="author-section">
+          <div className="author-info" onClick={() => navigate(`/profile/${recipeAuthor.id}`)} style={{ cursor: 'pointer' }}>
             <img src={recipeAuthor.avatar} alt={recipeAuthor.name} className="author-avatar" />
-            <div>
-              <h3>{recipeAuthor.name}</h3>
+            <div className="author-details">
+              <div className="author-name-line">
+                <span className="author-name">{recipeAuthor.name}</span>
+                <span className="author-username">@{recipeAuthor.username}</span>
+              </div>
               <p className="author-bio">{recipeAuthor.bio}</p>
             </div>
           </div>
-          <button 
-            onClick={toggleSubscription}
-            className={`subscribe-btn ${isSubscribed ? 'subscribed' : ''}`}
-          >
-            {isSubscribed ? 'Subscribed' : 'Subscribe'}
-          </button>
-        </div>}
+          <FollowButton targetUserId={recipeAuthor.id} isOwner={isOwner} />
+        </div>
 
         {/* Timer Section */}
         <div className="timer-section">
@@ -297,13 +330,29 @@ const RecipeDetail = () => {
           {/* Comments List */}
           <div className="comments-list">
             {comments.length > 0 ? (
-              comments.map(comment => (
+               comments.map(comment => (
                 <div key={comment.id} className="comment">
-                  <div className="comment-header">
-                    <span className="comment-author">{comment.author}</span>
-                    <span className="comment-time">{comment.timestamp}</span>
+                  <div className="comment-header" onClick={() => navigate(`/profile/${comment.author.id}`)} style={{ cursor: 'pointer' }}>
+                    <img 
+                      src={comment.author.profilePicture} 
+                      alt={comment.author.username} 
+                      className="comment-avatar" 
+                    />
+                    <div className="comment-content-wrapper">
+                      <div className="comment-top-row">
+                        <div className="author-info-wrapper">
+                          <div className="author-info">
+                            <span className="comment-author">{comment.author.name}</span>
+                            <span className="comment-username">@{comment.author.username}</span>
+                          </div>
+                          <p className="comment-text">{comment.text}</p>
+                        </div>
+                        <span className="comment-time">
+                          {new Date(comment.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="comment-text">{comment.text}</p>
                 </div>
               ))
             ) : (

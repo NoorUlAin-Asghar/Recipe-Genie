@@ -148,7 +148,7 @@
 
 .recipes-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
 
@@ -281,55 +281,56 @@
     border-bottom: 1px solid #ddd;
     padding-bottom: 10px;
   }
-  
   .subscription-item {
-    cursor:pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .subscription-item:hover {
+    background-color: rgba(249, 136, 8, 0.05);
+  }
+  
+  .user-content {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
-    transition: background-color 0.2s ease;
-
+    gap: 12px;
+    flex-grow: 1;
   }
   
-  .subscription-item img {
+  .subscription-pic {
     width: 50px;
     height: 50px;
-    object-fit: cover;
     border-radius: 50%;
-    margin-right: 12px;
+    object-fit: cover;
     border: 2px solid #ccc;
-    pointer-events: none; /* Makes image non-clickable */
-
   }
   
-  .subscription-item .username {
-    pointer-events: none; /* Makes text non-clickable to ensure whole area works */
-
+  .user-text {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .subscription-name {
     font-weight: 600;
+    font-size: 0.95rem;
     color: #333;
   }
-/* New hover effect for clickable subscription items */
-
-
-  .subscription-item:hover {
-    background-color: rgba(249, 136, 8, 0.05); /* Light orange tint */
-  }   
-
-/* Prevent button hover from triggering item hover */
   
-
-/* New click feedback animation */
-  .subscription-item:active {
-      transform: scale(0.98);
+  .subscription-username {
+    font-size: 0.85rem;
+    color: #666;
   }
-
-/* Visual cue for clickable area */
-  .subscription-header {
-     pointer-events: none; /* Makes text non-clickable to ensure whole area works */
+  
+  .follow-button-wrapper {
+    margin-left: auto;
+    padding-left: 15px;
   }
-
-
-
 
   .subscriptions-section {
     margin-top: 3rem;

@@ -37,5 +37,5 @@ mongoose.connect(process.env.MONGO_URI)
 //routes
 app.use('/', authRoutes)
 app.use('/recipes',recipeRoutes)
-app.use('/recipes/:recipeId/comments',commentRoutes)
+app.use('/comments/:recipeId',commentRoutes)
 app.use('/users',userRoutes)

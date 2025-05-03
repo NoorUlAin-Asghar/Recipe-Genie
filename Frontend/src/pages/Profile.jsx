@@ -5,7 +5,8 @@ import defaultProfilePic from '../assetss/images/profile.jpg'; // add this image
 import { toast } from 'react-toastify';
 import { ConfirmToast } from '../components/ConfirmToast'; // Import the component
 import LoadingScreen from '../components/loadingScreen'
-import { getProfile, getAllRecipesOfAUser, updateMyProfile, deleteRecipe } from '../api';
+import FollowButton from '../components/FollowButton';
+import { getProfile, getAllRecipesOfAUser, updateMyProfile, deleteRecipe, getFollowers,getFollowing } from '../api';
 
 import '../Profile.css';
 import '../Home.css';
@@ -15,7 +16,8 @@ const Profile = ({ user}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({ ...user });
   const navigate = useNavigate();
-  const [subscriptions, setSubscriptions] = useState([]);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
   const [showDropdown, setShowDropdown] = useState(null);
   const [editingRecipe, setEditingRecipe] = useState(null);
   const [profile, setprofile] = useState({
@@ -82,11 +84,25 @@ const Profile = ({ user}) => {
 
         setprofile(formattedResponse);
         setUpdatedUser(formattedResponse);
+        fetchConnections();
       } catch (error) {
         console.error('Failed to fetch profile:', error);
         setErrorMessage(error?.response?.data?.message || 'Failed to load profile');
       } finally {
         setLoading(false);
+      }
+    };
+    const fetchConnections = async () => {
+      try {
+        const [followerData, followingData] = await Promise.all([
+          getFollowers(userId),
+          getFollowing(userId),
+        ]);
+        setFollowers(followerData.data);
+        setFollowing(followingData.data);
+        console.log("Followers: ",followers,"\nFollowing: ",following)
+      } catch (err) {
+        console.error("Failed to fetch connections", err);
       }
     };
 
@@ -97,17 +113,11 @@ const Profile = ({ user}) => {
   useEffect(() => {
     console.log('Profile updated:', profile);
   }, [profile]);
-
-  // Load subscriptions from localStorage
+  // Log the updated followers and following
   useEffect(() => {
-    const savedSubs = localStorage.getItem('subscriptions');
-    if (savedSubs) {
-      const parsedSubs = JSON.parse(savedSubs);
-      setSubscriptions(parsedSubs);
-      // Update following count based on subscriptions
-      setprofile(prev => ({ ...prev, following: parsedSubs.length }));
-    }
-  }, []);
+    console.log("Updated Followers: ", followers);
+    console.log("Updated Following: ", following);
+  }, [followers, following]);
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -276,23 +286,6 @@ const Profile = ({ user}) => {
     console.log('Recipe:', editingRecipe);
   }, [editingRecipe]);
 
-  const unsubscribe = (chefId) => {
-    const updatedSubs = subscriptions.filter(chef => chef.id !== chefId);
-    setSubscriptions(updatedSubs);
-    localStorage.setItem('subscriptions', JSON.stringify(updatedSubs));
-    // Decrease following count
-    setprofile(prev => ({ ...prev, following: updatedSubs.length }));
-  };
-
-  // Function to handle subscription (you'll call this when subscribing elsewhere)
-  const handleSubscribe = (chef) => {
-    const updatedSubs = [...subscriptions, chef];
-    setSubscriptions(updatedSubs);
-    localStorage.setItem('subscriptions', JSON.stringify(updatedSubs));
-    // Increase following count
-    setprofile(prev => ({ ...prev, following: updatedSubs.length }));
-  };
-
   if (loading) {
     return <LoadingScreen/>
   }
@@ -386,7 +379,7 @@ const Profile = ({ user}) => {
               {isEditing ? 'Save Changes' : 'Edit Profile'}
             </button>
             ) : (
-              <button className="profile-edit-btn">Follow</button> //handle subscribe functionality
+              <FollowButton targetUserId={userId} isOwner={currentUserId} />
             )}
 
            {isEditing && (
@@ -458,65 +451,81 @@ const Profile = ({ user}) => {
             </div>
           </div>
         </div>
-
+        
         <div className="profile-sidebar">
          <div className="sidebar-section">
-           <h3>Subscriptions</h3>
-           {subscriptions.length > 0 ? (
+           <h3>Following</h3>
+           {following.length > 0 ? (
              <div className="subscriptions-list">
-               {subscriptions.map(chef => (
-                <div 
-                  key={chef.id} 
-                  className="subscription-item"
-                  onClick={(e) => {
-              // Only navigate if the click wasn't on the unsubscribe button
-                    if (!e.target.closest('.unsubscribe-btn')) {
-                      navigate(`/profile/${chef.id}`);
-                    }
-                  }}
-                >
-                  <div className="subscription-header">
-                    <img 
-                      src={chef.avatar} 
-                      alt={chef.name} 
-                      className="subscription-pic" 
-                    />
-                    <div>
-                      <p className="subscription-name">{chef.name}</p>
-                      <p className="subscription-bio">{chef.bio}</p>
-                    </div>
-                  </div>
-                  <button 
-                    className="unsubscribe-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      unsubscribe(chef.id);
-                    }}
-                  >
-                    Unsubscribe
-                  </button>
+             {following.map(chef => (
+               <div 
+                 key={chef.id} 
+                 className="subscription-item"
+                 onClick={(e) => {
+                   if (!e.target.closest('.follow-button-wrapper')) {
+                     navigate(`/profile/${chef._id}`);
+                   }
+                 }}
+               >
+                 <div className="user-content">
+                   <img 
+                     src={chef.profilePicture} 
+                     alt={chef.name} 
+                     className="subscription-pic" 
+                   />
+                   <div className="user-text">
+                     <span className="subscription-name">{chef.name}</span>
+                     <span className="subscription-username">@{chef.username}</span>
+                   </div>
+                 </div>
+                 <div className="follow-button-wrapper">
+                   <FollowButton targetUserId={chef._id} isOwner={currentUserId} />
+                 </div>
                </div>
-              ))}
+             ))}
            </div>
           ) : (
-            <p className="no-subscriptions">No subscriptions yet</p>
+            <p className="no-subscriptions">Not following anyone</p>
+          )}
+         </div>
+
+         <div className="sidebar-section">
+           <h3>Followers</h3>
+           {followers.length > 0 ? (
+             <div className="subscriptions-list">
+             {followers.map(chef => (
+               <div 
+                 key={chef.id} 
+                 className="subscription-item"
+                 onClick={(e) => {
+                   if (!e.target.closest('.follow-button-wrapper')) {
+                     navigate(`/profile/${chef._id}`);
+                   }
+                 }}
+               >
+                 <div className="user-content">
+                   <img 
+                     src={chef.profilePicture} 
+                     alt={chef.name} 
+                     className="subscription-pic" 
+                   />
+                   <div className="user-text">
+                     <span className="subscription-name">{chef.name}</span>
+                     <span className="subscription-username">@{chef.username}</span>
+                   </div>
+                 </div>
+                 <div className="follow-button-wrapper">
+                   <FollowButton targetUserId={chef._id} isOwner={currentUserId} />
+                 </div>
+               </div>
+             ))}
+           </div>
+          ) : (
+            <p className="no-subscriptions">No followers yet</p>
           )}
          </div>
         </div>
       </div>
-
-      {/* {editingRecipe && (
-        <div className="edit-recipe-modal">
-          <div className="modal-content">
-            <ShareRecipeForm 
-              initialRecipe={editingRecipe}
-              onSave={handleSaveRecipe}
-              onCancel={handleCancelEdit}
-              isEditing={true}
-            />
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };
