@@ -9,6 +9,7 @@ const recipeRoutes = require('./routes/recipeRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
+const likeRoutes = require('./routes/likeRoutes'); // Add this line
 
 // Express app
 const app = express();
@@ -16,8 +17,8 @@ const app = express();
 // CORS configuration (adjust if needed)
 const corsOptions = {
   origin: 'http://localhost:3000', // Update if frontend is hosted elsewhere
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Add all necessary methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Add 'Authorization' for JWT
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -31,9 +32,10 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/', authRoutes);
-app.use('/recipes', recipeRoutes);
-app.use('/recipes/:recipeId/comments', commentRoutes);
-app.use('/users', userRoutes);
+app.use('/api/recipes', recipeRoutes); // Updated path to include /api
+app.use('/api/recipes/:recipeId/comments', commentRoutes); // Updated path
+app.use('/api/users', userRoutes); // Updated path
+app.use('/api/recipes', likeRoutes); // Mount likeRoutes under /api/recipes
 
 // ---------------- Groq Chatbot Route ----------------
 const groq = new Groq({ api_key: process.env.GROQ_API_KEY });
@@ -63,7 +65,7 @@ app.post('/api/chat', async (req, res) => {
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     app.listen(process.env.PORT || 3001, () => {
-      console.log('Connected to DB + Server running on port', process.env.PORT);
+      console.log('Connected to DB + Server running on port', process.env.PORT || 3001);
     });
   })
   .catch((error) => {
