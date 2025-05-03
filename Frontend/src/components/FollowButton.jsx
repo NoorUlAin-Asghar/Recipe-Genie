@@ -19,10 +19,10 @@ const FollowButton = ({ targetUserId, isOwner , show=false}) => {
       }
     };
 
-    if (targetUserId && isOwner!=targetUserId) {
+    if (targetUserId && isOwner!==targetUserId) {
       checkFollow();
     }
-    if(isOwner==targetUserId){
+    if(isOwner===targetUserId){
       setShowButton(false)
     }
   }, [targetUserId, isOwner]);

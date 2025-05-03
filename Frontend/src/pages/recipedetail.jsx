@@ -293,6 +293,11 @@ const RecipeDetail = () => {
           <h2>Description</h2>
           <p>{recipe.description}</p>
         </div>
+
+        <div className="detail-section">
+          <h2>Serving</h2>
+          <p>{recipe.serving}</p>
+        </div>
         
         <div className="detail-section">
           <h2>Ingredients</h2>
