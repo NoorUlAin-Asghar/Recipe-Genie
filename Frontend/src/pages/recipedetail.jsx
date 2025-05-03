@@ -257,7 +257,7 @@ const RecipeDetail = () => {
               <p className="author-bio">{recipeAuthor.bio}</p>
             </div>
           </div>
-          <FollowButton targetUserId={recipeAuthor.id} isOwner={isOwner} />
+          <FollowButton targetUserId={recipeAuthor.id} isOwner={currentUserId} />
         </div>
 
         {/* Timer Section */}
