@@ -1,18 +1,17 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
+require('dotenv').config()
+const express=require('express')
+const mongoose=require('mongoose')
 const cors = require('cors');
 const Groq = require('groq-sdk');
+const recipeRoutes=require('./routes/recipeRoutes')
+const commentRoutes=require('./routes/commentRoutes')
+const userRoutes=require('./routes/userRoutes')
+const authRoutes=require('./routes/authRoutes')
 
-// Route imports
-const recipeRoutes = require('./routes/recipeRoutes');
-const commentRoutes = require('./routes/commentRoutes');
-const userRoutes = require('./routes/userRoutes');
-const authRoutes = require('./routes/authRoutes');
-const likeRoutes = require('./routes/likeRoutes'); // Add this line
+const path = require('path');
 
-// Express app
-const app = express();
+//express app
+const app=express()
 
 // CORS configuration (adjust if needed)
 const corsOptions = {
@@ -23,23 +22,23 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Middleware
-app.use(express.json());
-app.use((req, res, next) => {
-  console.log(req.path, req.method);
-  next();
-});
+//middleware
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+// Serve static files from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Routes (correct order)
-app.use('/api/auth', authRoutes);  // Auth routes first
+app.use((req,res,next)=>{
+    console.log(req.path,req.method)
+    next()
+})
 
-// Recipe-related routes
-app.use('/api/recipes', recipeRoutes);  // Basic recipe routes
-app.use('/api/recipes', likeRoutes);    // Like routes
-app.use('/api/recipes', commentRoutes); // Comment routes
 
-// User routes
-app.use('/api/users', userRoutes);
+//routes
+app.use('/', authRoutes)
+app.use('/recipes',recipeRoutes)
+app.use('/comments/:recipeId',commentRoutes)
+app.use('/users',userRoutes)
 
 // ---------------- Groq Chatbot Route ----------------
 const groq = new Groq({ api_key: process.env.GROQ_API_KEY });
