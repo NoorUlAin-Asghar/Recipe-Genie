@@ -30,12 +30,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
-app.use('/', authRoutes);
-app.use('/api/recipes', recipeRoutes); // Updated path to include /api
-app.use('/api/recipes/:recipeId/comments', commentRoutes); // Updated path
-app.use('/api/users', userRoutes); // Updated path
-app.use('/api/recipes', likeRoutes); // Mount likeRoutes under /api/recipes
+// Routes (correct order)
+app.use('/api/auth', authRoutes);  // Auth routes first
+
+// Recipe-related routes
+app.use('/api/recipes', recipeRoutes);  // Basic recipe routes
+app.use('/api/recipes', likeRoutes);    // Like routes
+app.use('/api/recipes', commentRoutes); // Comment routes
+
+// User routes
+app.use('/api/users', userRoutes);
 
 // ---------------- Groq Chatbot Route ----------------
 const groq = new Groq({ api_key: process.env.GROQ_API_KEY });

@@ -1,3 +1,4 @@
+// authMiddleware.js
 const jwt = require('jsonwebtoken');
 
 const verifyToken = async (req, res, next) => {
@@ -10,7 +11,7 @@ const verifyToken = async (req, res, next) => {
   try {
     token = token.split(" ")[1]; // Remove 'Bearer '
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded._id; // Attach user ID to request
+    req.userId = decoded._id;
     next();
   } catch (err) {
     console.error('JWT Error:', err.message);
@@ -18,4 +19,4 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
-module.exports = verifyToken;
+module.exports = { verifyToken };
