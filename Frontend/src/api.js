@@ -39,5 +39,7 @@ API.interceptors.request.use((req) => {
 
   export const getFollowers=(userId)=>API.get(`/users/followers/${userId}`);
   export const getFollowing=(userId)=>API.get(`/users/following/${userId}`);
+  // Toggle like/unlike on a recipe
+export const toggleLike = (recipeId) => API.post(`/recipes/${recipeId}/like`);
 
   //export const likeRecipe = (id) => API.post(`/recipes/${id}/like`);

@@ -15,7 +15,7 @@ const recipeSchema = new Schema({
     { type: String, required: true }
   ],
   image: { type: String, default: '' },
-  likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  likes:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]
 }, { timestamps: true });
 

@@ -93,6 +93,48 @@ const getRecipe = async (req, res) => {
     }
 };
 
+// Toggle like functionality (like or unlike)
+const likeRecipe = async (req, res) => {
+    const { recipeId } = req.params;
+    const userId = req.user._id; // Assuming the user is authenticated and user._id is available
+
+    if (!mongoose.Types.ObjectId.isValid(recipeId)) {
+        return res.status(400).json({ error: 'No such recipe' });
+    }
+
+    try {
+        const recipe = await Recipe.findById(recipeId);
+
+        if (!recipe) {
+            return res.status(404).json({ error: 'Recipe not found' });
+        }
+
+        // Check if the user has already liked the recipe
+        const alreadyLiked = recipe.likes.includes(userId);
+
+        if (alreadyLiked) {
+            // User has already liked the recipe, so remove the like
+            recipe.likes.pull(userId); // This removes the userId from the likes array
+        } else {
+            // User has not liked the recipe, so add the like
+            recipe.likes.push(userId); // This adds the userId to the likes array
+        }
+
+        // Save the updated recipe
+        await recipe.save();
+
+        // Respond with the updated like count
+        res.status(200).json({
+            likesCount: recipe.likes.length,
+            message: alreadyLiked ? 'Recipe unliked' : 'Recipe liked'
+        });
+    } catch (error) {
+        console.error('Error liking/unliking recipe:', error);
+        res.status(500).json({ error: 'Server error while toggling like' });
+    }
+};
+
+
 //GET a recipe by title
 const getRecipeByTitle = async (req, res) => {
     const { title } = req.query;
@@ -290,5 +332,6 @@ module.exports={
     getRecipeByTitle,
     getPopularRecipes,
     deleteRecipe,
-    updateRecipe
+    updateRecipe,
+    likeRecipe
 }
