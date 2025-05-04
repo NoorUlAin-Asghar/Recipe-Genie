@@ -17,7 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/recipe/:id" element={<RecipeDetail />} />
+        <Route path="/recipe/:recipeId" element={<RecipeDetail />} />
         <Route path="/Profile" element={<Profile />} />
         <Route path="/sharerecipe" element={<ShareRecipeForm />} />
         <Route path="/usersearch" element={<UserSearch />} />
