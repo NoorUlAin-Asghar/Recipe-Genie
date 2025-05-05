@@ -18,10 +18,9 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/home" element={<Home />} />
         <Route path="/recipe/:recipeId" element={<RecipeDetail />} />
-        <Route path="/Profile" element={<Profile />} />
+        <Route path="/profile/:userId" element={<Profile key="profile"/>} />
         <Route path="/sharerecipe" element={<ShareRecipeForm />} />
         <Route path="/usersearch" element={<UserSearch />} />
-
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/chatbot" element={<AIChat />} /> {/* AI chat route */}

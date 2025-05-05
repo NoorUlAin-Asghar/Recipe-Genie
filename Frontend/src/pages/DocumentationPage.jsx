@@ -2,10 +2,12 @@ import React from 'react';
 import '../doc.css'; // Import custom CSS for styling
 import emailIcon from '../assetss/email.png';
 import phoneIcon from '../assetss/phone.png';
+import Navbar from '../components/navbar';
 
 const DocumentationPage = () => {
   return (
     <div className="documentation-container">
+      <Navbar />
       <header className="header">
         <h1>Recipe Genie Documentation</h1>
       </header>

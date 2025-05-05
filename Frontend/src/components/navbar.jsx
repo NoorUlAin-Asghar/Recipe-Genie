@@ -44,7 +44,7 @@ const Navbar = () => {
         <Link to="/sharerecipe" className="navbar-link">
           <i className="fas fa-plus"></i> Share Recipe
         </Link>
-        <Link to="/profile" className="navbar-link">
+        <Link to={`/profile/${userId}`} className="navbar-link">
           {username ? (<span>😊{username}</span>) : (<span>Loading...</span>)}
         </Link>
         <Link to="/documentation" className="navbar-link">FAQ</Link> {/* Add this link */}

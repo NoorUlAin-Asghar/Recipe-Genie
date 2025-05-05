@@ -13,6 +13,19 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [userId, setUserID] = useState('');
+  
+    useEffect(() => {
+      // Get userid directly from localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user?.data?.username) {
+        setUsername(user.data.username);
+      }
+      if(user?.data?.userid){
+        setUserID(user.data.userid);
+      }
+    }, []);
 
   const recentChats = [
     'How can I increase the number of servings?',
@@ -74,6 +87,7 @@ function App() {
 
   return (
     <div className="app">
+      
       {/* Sidebar */}
       <div className="sidebar">
         <div className="logo-container">
@@ -100,8 +114,8 @@ function App() {
         </div>
 
         <div className="user-profile">
-          <button className="user-profile-button" onClick={() => navigate('/profile')}>
-            <FiUser className="icon" /> User Profile
+          <button className="user-profile-button" onClick={() => navigate(`/profile/${userId}`)}>
+            <FiUser className="icon" /> {username}
           </button>
         </div>
       </div>

@@ -1,19 +1,23 @@
-body {
-    font-family: Arial, sans-serif;
+/* body {
+    font-family: Arial, sans-serif; 
+    background-color: #ffffff;
+    color: #333333;
+    margin: 0;
+    padding: 0;
+  } */
+  
+  .documentation-container {
+    /* max-width: 1200px; */
+    margin: 0 auto;
+    padding: 20px;
     background-color: #ffffff;
     color: #333333;
     margin: 0;
     padding: 0;
   }
   
-  .documentation-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
   .header {
-    background-color: #ff9500;
+    background-color: #ff8c42;
     color: #ffffff;
     padding: 10px 20px;
     text-align: center;
@@ -28,7 +32,7 @@ body {
   }
   
   .section-title {
-    color: #ff9500;
+    color: #ff8c42;
     font-size: 24px;
     margin-bottom: 10px;
   }
@@ -66,7 +70,7 @@ body {
   }
   
   .contact-info a {
-    color: #ff9500;
+    color: #ff8c42;
     text-decoration: none;
   }
   
@@ -75,10 +79,10 @@ body {
   }
   
   .footer {
-    background-color: #ff9500;
+    background-color: #ff8c42;
     color: #ffffff;
     text-align: center;
-    padding: 10px 20px;
+    padding: 0px 20px;
     position: fixed;
     bottom: 0;
     width: 100%;
