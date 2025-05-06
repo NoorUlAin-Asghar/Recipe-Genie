@@ -16,19 +16,19 @@ const DocumentationPage = () => {
           <h2 className="main-section-title">Frequently Asked Questions (FAQs)</h2>
           <div className="faq-item">
             <h3 className="faq-question">How do I create an account?</h3>
-            <p className="faq-answer">To create an account, navigate to the Sign Up page and fill in the required fields (Name, Email, Password, Confirm Password). Click the 'Sign Up' button to complete the process.</p>
+            <p className="faq-answer">To create an account, navigate to the Sign Up page and fill in the required fields (Name, Username, Email, Password, Confirm Password). Click the 'Sign Up' button to complete the process.</p>
           </div>
-          <div className="faq-item">
+          {/* <div className="faq-item">
             <h3 className="faq-question">How do I reset my password?</h3>
             <p className="faq-answer">If you forget your password, click on the 'Forgot Password?' link on the Login page. Follow the instructions to reset your password.</p>
-          </div>
+          </div> */}
           <div className="faq-item">
             <h3 className="faq-question">How do I post a recipe?</h3>
             <p className="faq-answer">Click on the 'Post Recipe' button on the main navigation bar. Fill in the recipe details, including title, ingredients, instructions, and upload an image. Click 'Submit' to post your recipe.</p>
           </div>
           <div className="faq-item">
-            <h3 className="faq-question">How do I subscribe to a recipe creator?</h3>
-            <p className="faq-answer">Navigate to a recipe creator's profile and click the 'Subscribe' button. You will receive notifications when they post new recipes.</p>
+            <h3 className="faq-question">How do I follow a recipe creator?</h3>
+            <p className="faq-answer">Navigate to a recipe creator's profile and click the 'Follow' button. Their posted recipes will be added to your home page under the tag of following.</p>
           </div>
           <div className="faq-item">
             <h3 className="faq-question">How do I use the AI chatbot?</h3>

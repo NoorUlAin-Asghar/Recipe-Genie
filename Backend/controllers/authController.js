@@ -13,6 +13,7 @@ const createToken=(_id)=>{
 
 // Register a new user
 const register = async (req, res) => {
+  const defaultProfilePicture = "http://localhost:3000/uploads/default-profile.png"; // Path to your default logo
   const { name, username, email, password } = req.body;
 
   if(!name || !username || !email || !password)
@@ -35,7 +36,7 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create a new user
-    const newUser = await User.create({ name,username, email, password: hashedPassword });
+    const newUser = await User.create({ name,username, email, password: hashedPassword, profilePicture:defaultProfilePicture });
 
     // Create JWT token
     const token = createToken(newUser._id);

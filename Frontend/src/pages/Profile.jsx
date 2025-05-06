@@ -10,6 +10,7 @@ import { getProfile, getAllRecipesOfAUser, updateMyProfile, deleteRecipe, getFol
 
 import '../Profile.css';
 import '../Home.css';
+import LikeButton from '../components/LikeButton';
 
 const Profile = ({ user}) => {
   const { userId} = useParams(); // ID from URL - whose profile we are currently visitng
@@ -438,10 +439,11 @@ const Profile = ({ user}) => {
                   <div className="recipe-info">
                     <p>{recipe.title}</p>
                     <div className="recipe-meta">
-                      <span>
+                      <LikeButton recipeId={recipe._id} likeCount={recipe.likes}/>
+                      {/* <span>
                         <i className={recipe.likes > 0 ? "fas fa-heart" : "far fa-heart"}></i> 
                         {recipe.likes}
-                      </span>
+                      </span> */}
                       <span><i className="fas fa-clock"></i> {recipe.cookTime} mins</span>
                     </div>
                   </div>
