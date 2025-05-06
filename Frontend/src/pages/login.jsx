@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState, useEffect} from 'react';
 import { Link, useNavigate} from 'react-router-dom';
 import { loginUser } from '../api';
 import ProtectRoute from '../components/protectRoute'; // Adjust path if needed
@@ -12,22 +12,9 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
-  // const [isRedirecting, setIsRedirecting] = useState(false);
-
-  
+  const [popupConfig, setPopupConfig] = useState(null);  
   const navigate = useNavigate();
 
-  // // Check for existing user on mount
-  // useEffect(() => {
-  //   const user = JSON.parse(localStorage.getItem('user'));
-  //   if (user?.data?.token) {
-  //     setIsRedirecting(true);
-  //     const timer = setTimeout(() => {
-  //       navigate('/home', { replace: true });
-  //     }, 1500);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,26 +64,47 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-  // if (isRedirecting) {
-  //   return (
-  //     <div className="redirect-screen">
-  //       <div className="redirect-card">
-  //         <img 
-  //           src={require('../assetss/images/logo.jpg')} 
-  //           alt="Logo" 
-  //           className="redirect-logo"
-  //         />
-  //         <h2>Welcome Back!</h2>
-  //         <h3>Already Signed In</h3>
-  //         <p>Taking you to your recipes...</p>
-  //         <div className="redirect-spinner"></div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+   
+   useEffect(() => {
+    const msg = localStorage.getItem('sessionMessage');
+    if (msg) {
+      const parts = msg.split('. ');
+      
+      localStorage.removeItem('sessionMessage'); // Clear after showing
+      const newPopup = 
+      {
+        icon: "⏰",
+        title: parts[0],
+        message: parts[1]
+      }
+      setPopupConfig(newPopup);
+      setTimeout(() => {
+        setPopupConfig(null);
+      }, 4000); // 4 seconds
+    }
+  }, []);
+ 
+  const closePopup = () => {
+    setPopupConfig(null);
+  };
+
+
   return (
     <>
     <ProtectRoute /> 
+    {popupConfig && (
+      <div className="popup-overlay">
+        <div className="popup-container">
+          <div className="popup-content">
+            <span className="close-btn" onClick={closePopup}>&times;</span>
+            <div className="popup-icon">{popupConfig.icon}</div>
+            <h3>{popupConfig.title}</h3>
+            <p>{popupConfig.message}</p>
+          </div>
+        </div>
+      </div>
+    )}
+
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">

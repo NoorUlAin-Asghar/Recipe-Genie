@@ -5,7 +5,8 @@ import { useParams } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import LoadingScreen from '../components/loadingScreen';
 import FollowButton from '../components/FollowButton';
-import { getRecipe, createComment, toggleLike } from '../api';
+import LikeButton from '../components/LikeButton';
+import { getRecipe, createComment } from '../api';
 import '../Home.css';
 import beepSound from '../assetss/beep.mp3';
 
@@ -21,9 +22,7 @@ const RecipeDetail = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   // --- Like states ---
-  const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(0);
-  const [actionText, setActionText] = useState('');
 
   // --- Comment state ---
   const [newComment, setNewComment] = useState('');
@@ -41,7 +40,6 @@ const RecipeDetail = () => {
   });
 
   const [currentUserId, setCurrentUserId] = useState('');
-  const isOwner = currentUserId === recipeAuthor.id;
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -82,8 +80,8 @@ const RecipeDetail = () => {
           setComments(response.data.comments);
                   
           // likes
-          setLikes(response.data.likesCount ?? response.data.likes);
-          setLiked(response.data.likedByCurrentUser ?? response.data.likesArray?.includes(response.data.currentUserId) ?? false);
+          setLikes(response.data.likes);
+
           // initialize timer from cookTime
           const hrs = Math.floor((response.data.cookTime || 0) / 60);
           const mins = (response.data.cookTime || 0) % 60;
@@ -108,24 +106,6 @@ const RecipeDetail = () => {
       fetchRecipe();
     }, [recipeId]);
 
-  // Handle like toggle
-  const handleLikeClick = async () => {
-    const newLiked = !liked;
-    setLiked(newLiked);
-    setLikes(l => newLiked ? l + 1 : l - 1);
-    try {
-      const res = await toggleLike(recipeId);
-      const { likesCount, message } = res.data;
-      setLikes(likesCount);
-      const likedNow = message === 'Recipe liked';
-      setLiked(likedNow);
-      setActionText(likedNow ? 'LIKED!' : 'UNLIKED!');
-    } catch (err) {
-      console.error('Could not update like:', err);
-      setLiked(liked);
-      setLikes(likes);
-    }
-  };
 
   // Handle comment submit
   const handleCommentSubmit = async e => {
@@ -219,13 +199,8 @@ const RecipeDetail = () => {
         <img src={recipe.image} alt={recipe.name} className="detail-image" />
 
         <div className="recipe-meta-detail">
-          <span className="likes" onClick={handleLikeClick} style={{ cursor: 'pointer' }}>
-            {liked
-              ? <><i className="fas fa-heart" style={{ color: 'red' }} /> {actionText}</>
-              : <><i className="far fa-heart" style={{ color: 'red' }} /> {actionText}</>
-            }
-            <span> {likes} likes</span>
-          </span>
+          <LikeButton recipeId={recipeId} likeCount={likes}/>
+        
           <span className="recipe-time"><i className="fas fa-clock" /> {recipe.time} mins</span>
         </div>
 

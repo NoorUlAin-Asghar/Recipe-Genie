@@ -7,7 +7,9 @@ const {
     getAllRecipesOfAUser,
     deleteRecipe,
     updateRecipe,
-    likeRecipe
+    likeRecipe,
+    likeRecipeStatus,
+    getFollowedUsersRecipes
 } = require('../controllers/recipeContoller');  
 
 const router = express.Router();
@@ -23,8 +25,12 @@ router.get('/search/by-title', getRecipeByTitle);
 // GET popular recipes
 router.get('/popular', getPopularRecipes);
 
+//GET recipes of user I follow
+router.get('/follow',getFollowedUsersRecipes)
 // GET a single recipe (includes all details, comments, and author details)
 router.get('/:recipeId', getRecipe);
+
+router.get('/like-status/:recipeId',likeRecipeStatus)
 
 // GET all recipes of a specific user
 router.get('/userRecipes/:userId', getAllRecipesOfAUser);

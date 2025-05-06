@@ -13,7 +13,7 @@ const DocumentationPage = () => {
       </header>
       <main className="main-content">
         <section className="faq-section">
-          <h2 className="section-title">Frequently Asked Questions (FAQs)</h2>
+          <h2 className="main-section-title">Frequently Asked Questions (FAQs)</h2>
           <div className="faq-item">
             <h3 className="faq-question">How do I create an account?</h3>
             <p className="faq-answer">To create an account, navigate to the Sign Up page and fill in the required fields (Name, Email, Password, Confirm Password). Click the 'Sign Up' button to complete the process.</p>

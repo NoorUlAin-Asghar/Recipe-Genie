@@ -2,18 +2,24 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/navbar';
 import foodBg from '../assetss/images/food.png';
 import logo from '../assetss/images/logo.jpg'; // Import at top of file
+import LikeButton from '../components/LikeButton';
 import '../Home.css';
 import '../popup.css'; // We'll create this CSS file
 import { Link } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getPopularRecipes, searchRecipe } from '../api';
+import { getPopularRecipes, searchRecipe, getFollowedUsersRecipes } from '../api';
 
 const Home = () => {
   // Enhanced recipe data with IDs and details for the detail page
   const [allRecipes, setAllRecipes] = useState([]); // Initialize as empty array
+  const [followedRecipes, setFollowedRecipes] = useState([]);
+  const [followedMessage, setFollowedMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchSubmitted, setSearchSubmitted] = useState(false);
+  const [activeTab, setActiveTab] = useState('popular');
+
   const recipesPerPage = 4;
 
   useEffect(() => {
@@ -36,8 +42,36 @@ const Home = () => {
     
     fetchAllRecipes();
   }, []);
+
+  useEffect(() => {
+    const fetchFollowedRecipes = async () => {
+      try {
+        const response = await getFollowedUsersRecipes();
+  
+        if (response.data.recipes && response.data.recipes.length > 0) {
+          const formatted = response.data.recipes.map(recipe => ({
+            id: recipe._id,
+            name: recipe.title,
+            likes: recipe.likesCount,
+            time: recipe.cookTime,
+            image: recipe.image
+          }));
+          setFollowedRecipes(formatted);
+        } else {
+          setFollowedMessage(response.data.message); // handles empty or no-follow cases
+        }
+      } catch (error) {
+        console.error('Error fetching followed recipes:', error);
+        setFollowedMessage('Failed to fetch followed users\' recipes.');
+      }
+    };
+  
+    fetchFollowedRecipes();
+  }, []);
+  
   
   const handleSearch = async () => {
+    setSearchSubmitted(true); // Mark that a search was attempted
     if (searchTerm.trim() === '') {
       setSearchResults([]);
       setCurrentPage(1);
@@ -60,7 +94,23 @@ const Home = () => {
     }
   };
 
-   
+  //sync search and popular data
+  const handleLikeChange = (id, newLikes) => {
+    // Update in popular recipes
+    setFollowedRecipes(prev =>
+      prev.map(recipe => recipe.id === id ? { ...recipe, likes: newLikes } : recipe)
+    );
+
+    // Update in popular recipes
+    setAllRecipes(prev =>
+      prev.map(recipe => recipe.id === id ? { ...recipe, likes: newLikes } : recipe)
+    );
+    // Update in search results
+    setSearchResults(prev =>
+      prev.map(recipe => recipe.id === id ? { ...recipe, likes: newLikes } : recipe)
+    );
+  };
+  
 
   // Get current recipes for pagination
   const indexOfLastRecipe = currentPage * recipesPerPage;
@@ -95,7 +145,7 @@ const Home = () => {
             message: "Welcome to Recipe Genie! Start exploring delicious recipes."
           };
           setPopupConfig(newPopup);
-          const timer = setTimeout(() => {
+          setTimeout(() => {
             setPopupConfig(null);
           }, 2000); // 2 seconds
      
@@ -137,7 +187,10 @@ const Home = () => {
               placeholder="Search Recipes..." 
               className="search-input"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setSearchSubmitted(false); // Clear previous error state while typing
+              }}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
             <button 
@@ -149,9 +202,14 @@ const Home = () => {
           </div>
         </div>
       </section>
-
+            
       {/* Conditional rendering for search results or popular recipes */}
-      {searchResults.length > 0 ? (
+      {searchSubmitted &&  searchTerm.trim() !== '' &&searchResults.length === 0 ? (
+        <section className="recipes">
+          <h1 className="section-title">No Results</h1>
+          <p className="section-subtitle">No recipes found for "<strong>{searchTerm}</strong>"</p>
+        </section>
+      ) : searchResults.length > 0 ? (
         <section className="recipes">
           <h2 className="section-title">Search Results</h2>
           <div className="recipe-grid">
@@ -170,9 +228,8 @@ const Home = () => {
                   <div className="recipe-content">
                     <h3 className="recipe-title">{recipe.name}</h3>
                     <div className="recipe-meta">
-                      <span className="recipe-likes">
-                        <i className="fas fa-heart"></i> {recipe.likes}
-                      </span>
+                      <LikeButton recipeId={recipe.id} likeCount={recipe.likes} onLikeChange={handleLikeChange}/>
+                  
                       <span className="recipe-time">
                         <i className="fas fa-clock"></i> {recipe.time} mins
                       </span>
@@ -209,32 +266,74 @@ const Home = () => {
           )}
         </section>
       ) : (
-        <section className="recipes">
-          <h2 className="section-title">Popular Recipes</h2>
-          <p className="section-subtitle">
-            Follow our popular recipes and make your own Finger lickin' Food
-          </p>
-          <div className="recipe-grid">
-            {allRecipes.map((recipe) => (
-              <Link to={`/recipe/${recipe.id}`} key={recipe.id} className="recipe-card-link">
-                <div className="recipe-card">
-                <img  src={recipe.image} alt={recipe.name} className="recipe-image"/>
-                  <div className="recipe-content">
-                    <h3 className="recipe-title">{recipe.name}</h3>
-                    <div className="recipe-meta">
-                      <span className="recipe-likes">
-                        <i className="fas fa-heart"></i> {recipe.likes}
-                      </span>
-                      <span className="recipe-time">
-                        <i className="fas fa-clock"></i> {recipe.time} mins
-                      </span>
-                    </div>
-                  </div>
+          <><div className="tabs">
+              <button
+                className={activeTab === 'popular' ? 'active' : ''}
+                onClick={() => setActiveTab('popular')}
+              >
+                Popular
+              </button>
+              <button
+                className={activeTab === 'following' ? 'active' : ''}
+                onClick={() => setActiveTab('following')}
+              >
+                Following
+              </button>
+            </div>
+            {activeTab === 'popular' ? (  
+            <section className="recipes">
+                <h1 className="section-title">Popular Recipes</h1>
+                <p className="section-subtitle">
+                  Follow our popular recipes and make your own Finger lickin' Food
+                </p>
+                <div className="recipe-grid">
+                  {allRecipes.map((recipe) => (
+                    <Link to={`/recipe/${recipe.id}`} key={recipe.id} className="recipe-card-link">
+                      <div className="recipe-card">
+                        <img src={recipe.image} alt={recipe.name} className="recipe-image" />
+                        <div className="recipe-content">
+                          <h3 className="recipe-title">{recipe.name}</h3>
+                          <div className="recipe-meta">
+                            <LikeButton recipeId={recipe.id} likeCount={recipe.likes} onLikeChange={handleLikeChange} />
+
+                            <span className="recipe-time">
+                              <i className="fas fa-clock"></i> {recipe.time} mins
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+              </section>
+              ) : (
+                <section className="recipes">
+                  <h1 className="section-title">Recipes From People You Follow</h1>
+                  <p class="section-subtitle">See what your favorite cooks are serving — follow their flavors, taste their stories</p>
+                  {followedRecipes.length > 0 ? (
+                    <div className="recipe-grid">
+                      {followedRecipes.map((recipe) => (
+                        <Link to={`/recipe/${recipe.id}`} key={recipe.id} className="recipe-card-link">
+                          <div className="recipe-card">
+                            <img src={recipe.image || logo} alt={recipe.name} className="recipe-image" />
+                            <div className="recipe-content">
+                              <h3 className="recipe-title">{recipe.name}</h3>
+                              <div className="recipe-meta">
+                                <LikeButton recipeId={recipe.id} likeCount={recipe.likes} onLikeChange={handleLikeChange} />
+                                <span className="recipe-time">
+                                  <i className="fas fa-clock"></i> {recipe.time} mins
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="section-subtitle">{followedMessage}</p>
+                  )}
+                </section>
+              )}</>
       )}
     </div>
   );

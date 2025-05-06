@@ -49,6 +49,9 @@ const getRecipe = async (req, res) => {
                 populate: {
                     path: 'author',
                     select: 'name username profilePicture' // Include profileImage for comment authors
+                },
+                options: {
+                    sort: { createdAt: -1 } // Sort comments by createdAt in descending order (newest first)
                 }
             })
             .populate({
@@ -92,6 +95,34 @@ const getRecipe = async (req, res) => {
         res.status(500).json({ error: 'Server error while fetching recipe details' });
     }
 };
+
+const likeRecipeStatus = async (req, res) => {
+    const { recipeId } = req.params;
+    const userId = req.user._id; // Assuming the user is authenticated and user._id is available
+
+    if (!mongoose.Types.ObjectId.isValid(recipeId)) {
+        return res.status(400).json({ error: 'No such recipe' });
+    }
+
+    try {
+        const recipe = await Recipe.findById(recipeId);
+
+        if (!recipe) {
+            return res.status(404).json({ error: 'Recipe not found' });
+        }
+
+        // Check if the user has already liked the recipe
+        const alreadyLiked = recipe.likes.includes(userId);
+
+        // Respond with the updated like count
+        res.status(200).json(alreadyLiked);
+        console.log("Like Status: ", alreadyLiked)
+    } catch (error) {
+        console.error('Error getting like status:', error);
+        res.status(500).json({ error: 'Server error while toggling like' });
+    }
+};
+
 
 // Toggle like functionality (like or unlike)
 const likeRecipe = async (req, res) => {
@@ -199,6 +230,53 @@ const getPopularRecipes = async (req, res) => {
     }
   };
 
+  //GET recipe of users I follow
+  const getFollowedUsersRecipes = async (req, res) => {
+    try {
+        const userId=req.user._id
+  
+      // Step 1: Find user and their follow list
+      const user = await User.findById(userId).select('subscriptions');
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      // Step 2: If following list is empty
+      if (!user.subscriptions || user.subscriptions.length === 0) {
+        console.log("You are not following anyone yet, hence no followed recipes.")
+        return res.status(200).json({ message: "You are not following anyone yet.", recipes: [] });
+      }
+  
+      // Step 3: Find recipes by followed users, calculate like counts and sort
+      const recipes = await Recipe.aggregate([
+        { $match: { author: { $in: user.subscriptions } } },
+        { $addFields: { likesCount: { $size: "$likes" } } },
+        { $sort: { likesCount: -1 } },
+        {
+          $project: {
+            title: 1,
+            image: 1,
+            cookTime: 1,
+            likesCount: 1
+          }
+        }
+      ]);
+  
+      // Step 4: If no recipes found from followed users
+      if (!recipes.length) {
+        console.log("Followed users haven't posted any recipes yet.")
+        return res.status(200).json({ message: "Followed users haven't posted any recipes yet.", recipes: [] });
+      }
+  
+      res.status(200).json({ recipes });
+  
+    } catch (error) {
+      console.error("Error fetching followed users' recipes:", error);
+      res.status(500).json({ error: "Failed to fetch followed users' recipes" });
+    }
+  };
+  
+  
 //CREATE a new recipe
 const createRecipe = async (req,res)=>{
     console.log("creating recipe",req.body)
@@ -333,5 +411,7 @@ module.exports={
     getPopularRecipes,
     deleteRecipe,
     updateRecipe,
-    likeRecipe
+    likeRecipe,
+    likeRecipeStatus,
+    getFollowedUsersRecipes
 }
