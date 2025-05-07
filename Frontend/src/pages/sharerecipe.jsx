@@ -8,7 +8,7 @@ import '../sharerecipe.css';
 const ShareRecipeForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const initialRecipe = location.state?.recipe || null; // 👈 get from navigation state
+  const initialRecipe = location.state?.recipe || null; // get from navigation state
   const isEditing = location.state?.isEditing || false;
   const [recipe, setRecipe] = useState({
     name: '',
@@ -27,7 +27,7 @@ const ShareRecipeForm = () => {
   const [loading, setLoading] = useState(true);   // Loading state to track data fetching
 
   useEffect(() => {
-    // // Get username directly from localStorage
+    // // Get userId directly from localStorage
     const user = JSON.parse(localStorage.getItem('user'));
     // if (user?.data?.username) {
     //   setUsername(user.data.username);

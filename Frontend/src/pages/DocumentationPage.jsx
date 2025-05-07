@@ -36,28 +36,28 @@ const DocumentationPage = () => {
           </div>
         </section>
         <section className="help-section">
-  <h2 className="section-title">Need More Help?</h2>
-  <p className="help-info">
-    You can also download our complete user manual here:&nbsp;
-    <a href="/Recipe_Genie_User_Manual.docx" download>
-      Recipe Genie User Manual (Word)
-    </a>
-  </p>
-  <p className="help-info">If you have any further questions or need assistance, please feel free to contact our support team:</p>
-  <div className="contact-info">
-    <div className="contact-item">
-      <img src={emailIcon} alt="Email Icon" className="contact-icon" />
-      <p><strong>Email:</strong> <a href="mailto:support@recipegenie.com">support@recipegenie.com</a></p>
-    </div>
-    <div className="contact-item">
-      <img src={phoneIcon} alt="Phone Icon" className="contact-icon" />
-      <p><strong>Phone:</strong> <a href="tel:+1234567890">+1 (234) 567-890</a></p>
-    </div>
-    <div className="contact-item">
-      <p><strong>Contact Person:</strong> Jane Doe</p>
-    </div>
-  </div>
-</section>
+          <h2 className="section-title">Need More Help?</h2>
+          <p className="help-info">
+            You can also download our complete user manual here:&nbsp;
+            <a href="/Recipe_Genie_User_Manual.docx" download>
+              Recipe Genie User Manual (Word)
+            </a>
+          </p>
+          <p className="help-info">If you have any further questions or need assistance, please feel free to contact our support team:</p>
+          <div className="contact-info">
+            <div className="contact-item">
+              <img src={emailIcon} alt="Email Icon" className="contact-icon" />
+              <p><strong>Email:</strong> <a href="mailto:support@recipegenie.com">support@recipegenie.com</a></p>
+            </div>
+            <div className="contact-item">
+              <img src={phoneIcon} alt="Phone Icon" className="contact-icon" />
+              <p><strong>Phone:</strong> <a href="tel:+1234567890">+1 (234) 567-890</a></p>
+            </div>
+            <div className="contact-item">
+              <p><strong>Contact Person:</strong> Jane Doe</p>
+            </div>
+          </div>
+        </section>
 
       </main>
       <footer className="footer">

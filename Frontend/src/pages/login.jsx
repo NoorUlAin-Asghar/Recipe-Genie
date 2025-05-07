@@ -1,8 +1,8 @@
 import React, { useState, useEffect} from 'react';
 import { Link, useNavigate} from 'react-router-dom';
 import { loginUser } from '../api';
-import ProtectRoute from '../components/protectRoute'; // Adjust path if needed
-import '../login.css'; // We'll create this CSS file
+import ProtectRoute from '../components/protectRoute'; 
+import '../login.css'; 
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -50,11 +50,10 @@ const Login = () => {
     setLoginError('');
 
     try {
-      // Replace with your actual API endpoint
       const response = await loginUser(formData);
       
       console.log("user logged in: ",response)
-      // Save token and redirect (adjust based on your auth flow)
+      // Save token and redirect to home page
       localStorage.setItem('user', JSON.stringify(response));
       navigate('/home', {replace: true, state:{login: true}});
     } catch (error) {

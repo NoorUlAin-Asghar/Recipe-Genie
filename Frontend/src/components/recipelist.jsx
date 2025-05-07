@@ -1,28 +1,3 @@
-/*import React from 'react';
-import RecipeCard from './recipecard';
-
-const mockRecipes = [
-  { name: 'Chicken', likes: 160, image: '/images/chicken.png' },
-  { name: 'Biriyani', likes: 100, image: '/images/biryani.png' },
- // { name: 'Masala Dosa', likes: 120, image: '/images/dosa.jpg' },
- // { name: 'Paneer Tikka', likes: 200, image: '/images/paneer.jpg' },
-];
-
-const RecipeList = () => {
-  return (
-    <section className="p-8">
-      <h3 className="text-center text-2xl font-semibold mb-6">Popular Recipes</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {mockRecipes.map((recipe, index) => (
-          <RecipeCard key={index} recipe={recipe} />
-        ))}
-      </div>
-    </section>
-  );
-};
-
-export default RecipeList;*/
-
 import React from 'react';
 import RecipeCard from './recipecard';
 

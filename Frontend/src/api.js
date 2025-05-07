@@ -3,7 +3,7 @@ import axios from 'axios';
 //using proxy server
 const API = axios.create({ baseURL: '' });
 
-// Add auth token to headers if using authentication
+// Add auth token to headers 
 API.interceptors.request.use((req) => {
   try {
     const user = JSON.parse(localStorage.getItem('user'));

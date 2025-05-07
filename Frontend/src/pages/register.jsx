@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {registerUser} from '../api';
-import ProtectRoute from '../components/protectRoute'; // Adjust path if needed
-import '../register.css'; // We'll create this CSS file
+import ProtectRoute from '../components/protectRoute'; 
+import '../register.css'; 
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -55,9 +55,8 @@ const Register = () => {
     setRegisterError('');
 
     try {
-      // Replace with your actual API endpoint
       const response = await registerUser(formData);
-      // Save token and redirect (adjust based on your auth flow)
+      // Save token and redirect to home page
       localStorage.setItem('user', JSON.stringify(response));
       
       // On successful registration, redirect to login

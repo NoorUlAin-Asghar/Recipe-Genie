@@ -109,7 +109,7 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     width: 90%;
-    height: 90%; /* Adjust based on your design */
+    height: 90%; 
     position: relative;
   }
   
@@ -171,9 +171,8 @@
     font-weight: 900;
     font-size: 0.8rem;
   }
-  /* Search Container */
 
-/* Search Container - Fixed Version */
+/* Search Container */
 .search-container {
     position: relative;
     max-width: 600px;
@@ -567,7 +566,7 @@
     color: #d32f2f;
     font-weight: bold;
   }
-/* Author Section - Compact Version */
+/* Author Section */
 .author-section {
   display: flex;
   justify-content: space-between;
@@ -649,7 +648,7 @@
   border: 2px solid #f66206;
 }
 
-
+/*option button on home page*/
 .tabs {
   display: flex;
   justify-content: center;

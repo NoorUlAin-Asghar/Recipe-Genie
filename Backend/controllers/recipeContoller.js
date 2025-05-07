@@ -9,7 +9,7 @@ const getAllRecipesOfAUser= async(req,res)=>{
     try {
         const recipes = await Recipe.find({author:userId})
           .sort({ createdAt: -1 })
-          .select('title cookTime image likes') // Only select these fields
+          .select('title cookTime image likes') // Only selecting these fields
         
         if (!recipes || recipes.length===0) {
             console.log('No recipes exist');
@@ -175,7 +175,7 @@ const getRecipeByTitle = async (req, res) => {
             title: { $regex: new RegExp(`(^|\\s)${title}`, 'i')} // 'i' makes it case-insensitive
         })
         .sort({createdAt: -1})
-        .select('title likes cookTime image'); // Only select these fields
+        .select('title likes cookTime image'); // Only selecting these fields
         if(!recipes || recipes.length===0){
             console.log('no recipe exists by title',title);
             return res.status(404).json({error: 'No such recipe'});
@@ -290,7 +290,7 @@ const createRecipe = async (req,res)=>{
         instructions
     } = req.body;
     // Define a default logo URL
-    const defaultLogo = "http://localhost:3000/uploads/default-logo.png"; // Path to your default logo
+    const defaultLogo = "http://localhost:3000/uploads/default-logo.png"; // Path to the default logo
     
     //add recipe to DB
     try {
@@ -344,7 +344,7 @@ const deleteRecipe = async (req, res) => {
 
 //UPDATE a recipe
 const updateRecipe = async (req, res) => {
-    const defaultImage = "http://localhost:3000/uploads/default-recipe.png"; // Path to your default image
+    const defaultImage = "http://localhost:3000/uploads/default-recipe.png"; // Path to the default image
 
     try {
         const recipeId=req.params.recipeId;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import { searchUserByName, searchUserByUsername } from '../api';
-import '../usersearch.css'; // New dedicated CSS file
+import '../usersearch.css'; 
 
 const UserSearch = () => {
   const [userSearchTerm, setUserSearchTerm] = useState('');
@@ -85,13 +85,12 @@ const UserSearch = () => {
     };
   }, [userSearchTerm]);
 
-   // Add this function to handle navigation safely
+   // handle navigation safely
    const handleUserClick = (user) => {
     if (user.id) {
       navigate(`/profile/${user.id}`);
     } else {
       console.error('Cannot navigate: User ID is undefined', user);
-      // Optionally show an error message to the user
     }
   };
 

@@ -13,7 +13,7 @@ const createToken=(_id)=>{
 
 // Register a new user
 const register = async (req, res) => {
-  const defaultProfilePicture = "http://localhost:3000/uploads/default-profile.png"; // Path to your default logo
+  const defaultProfilePicture = "http://localhost:3000/uploads/default-profile.png";
   const { name, username, email, password } = req.body;
 
   if(!name || !username || !email || !password)
@@ -32,8 +32,8 @@ const register = async (req, res) => {
     if (existingUsername) return res.status(400).json({ message: 'Username is taken' });
 
     // Hash the password
-    const salt= await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const salt= await bcrypt.genSalt(10)  // Generates a random salt
+    const hashedPassword = await bcrypt.hash(password, salt); // Combines password + salt, then hashes
 
     // Create a new user
     const newUser = await User.create({ name,username, email, password: hashedPassword, profilePicture:defaultProfilePicture });

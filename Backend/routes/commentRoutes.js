@@ -5,7 +5,7 @@ const {
     deleteComment,
     updateComment
 }=require('../controllers/commentController')
-const router = express.Router({ mergeParams: true }); //mergeParams: true, should use when Nested Routers (when a child router depends on params from a parent route).
+const router = express.Router({ mergeParams: true }); //mergeParams: true, is used because of Nested Routers (when a child router depends on params from a parent route).
 
 //POST a comment  
 router.post('/',verifyToken,createComment);

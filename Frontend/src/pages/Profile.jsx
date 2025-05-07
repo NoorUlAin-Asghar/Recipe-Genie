@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams  } from 'react-router-dom';
 import Navbar from '../components/navbar';
-import defaultProfilePic from '../assetss/images/profile.jpg'; // add this image
+import defaultProfilePic from '../assetss/images/profile.jpg';
 import { toast } from 'react-toastify';
-import { ConfirmToast } from '../components/ConfirmToast'; // Import the component
+import { ConfirmToast } from '../components/ConfirmToast'; 
 import LoadingScreen from '../components/loadingScreen'
 import FollowButton from '../components/FollowButton';
 import { getProfile, getAllRecipesOfAUser, updateMyProfile, deleteRecipe, getFollowers,getFollowing } from '../api';
@@ -70,7 +70,7 @@ const Profile = ({ user}) => {
         
         const [userResponse, recipesResponse] = await Promise.all([
           getProfile(userId),
-          getAllRecipesOfAUser(userId).catch(() => ({ data: [] })) // Graceful fallback
+          getAllRecipesOfAUser(userId).catch(() => ({ data: [] })) //null if nothing returned
         ]);
 
         const formattedResponse = {
@@ -246,8 +246,8 @@ const Profile = ({ user}) => {
             toast.dismiss();
             resolve(false);
           }}
-          confirmText="Delete"  // Optional - defaults to "Delete"
-          cancelText="Cancel"    // Optional - defaults to "Cancel"
+          confirmText="Delete"  // "Delete"
+          cancelText="Cancel"    // "Cancel"
         />,
         {
           position: 'top-center',
@@ -440,10 +440,6 @@ const Profile = ({ user}) => {
                     <p>{recipe.title}</p>
                     <div className="recipe-meta">
                       <LikeButton recipeId={recipe._id} likeCount={recipe.likes}/>
-                      {/* <span>
-                        <i className={recipe.likes > 0 ? "fas fa-heart" : "far fa-heart"}></i> 
-                        {recipe.likes}
-                      </span> */}
                       <span><i className="fas fa-clock"></i> {recipe.cookTime} mins</span>
                     </div>
                   </div>

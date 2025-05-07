@@ -136,7 +136,7 @@ const getUserById = async (req, res) => {
 
 
 const updateMyProfile = async (req, res) => {
-    const defaultProfilePicture = "http://localhost:3000/uploads/default-profile.png"; // Path to your default logo
+    const defaultProfilePicture = "http://localhost:3000/uploads/default-profile.png"; // Path to the default logo
     try {
         const { name, bio } = req.body;
     

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/navbar';
 import foodBg from '../assetss/images/food.png';
-import logo from '../assetss/images/logo.jpg'; // Import at top of file
+import logo from '../assetss/images/logo.jpg'; 
 import LikeButton from '../components/LikeButton';
 import '../Home.css';
-import '../popup.css'; // We'll create this CSS file
+import '../popup.css'; 
 import { Link } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getPopularRecipes, searchRecipe, getFollowedUsersRecipes } from '../api';
@@ -26,7 +26,7 @@ const Home = () => {
     const fetchAllRecipes = async () => {
       try {
         const response = await getPopularRecipes();
-         // Transform API response to match your component's expected format
+         // Transform API response to match component's expected format
         const formattedRecipes = response.data.map(recipe => ({
           id: recipe._id, // Map _id to id
           name: recipe.title, // Map title to name

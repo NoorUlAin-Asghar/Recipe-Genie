@@ -47,7 +47,7 @@ const Navbar = () => {
         <Link to={`/profile/${userId}`} className="navbar-link">
           {username ? (<span>😊{username}</span>) : (<span>Loading...</span>)}
         </Link>
-        <Link to="/documentation" className="navbar-link">FAQ</Link> {/* Add this link */}
+        <Link to="/documentation" className="navbar-link">FAQ</Link>
         <Link to="/login" className="navbar-link login-link" 
           onClick={(e) => {
             e.preventDefault();

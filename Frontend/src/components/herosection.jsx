@@ -1,25 +1,3 @@
-/*import React from 'react';
-import heroImage from '../assetss/images/food.png';
-
-const HeroSection = () => {
-  return (
-    <div
-      className="bg-cover bg-center h-[400px] text-white flex items-center justify-center flex-col text-center px-4"
-      style={{ backgroundImage: `url(${heroImage})` }}
-    >
-      <h2 className="text-3xl md:text-5xl font-bold mb-2">Explore your taste</h2>
-      <p className="max-w-md mb-4">Fantastic food deserves a space that enhances its flavors. Start making your own!</p>
-      <input
-        type="text"
-        placeholder="Search Recipes"
-        className="p-2 w-64 rounded text-black"
-      />
-    </div>
-  );
-};
-
-export default HeroSection;*/
-
 import React from 'react';
 
 const HeroSection = () => {
