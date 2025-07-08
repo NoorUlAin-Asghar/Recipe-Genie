@@ -75,13 +75,13 @@ recipe-genie/
 
 ### Installation
 
-1. **Clone the repo**
+**1. Clone the repo**
 ```bash
 git clone https://github.com/NoorUlAin-Asghar/Recipe-Genie.git
 cd recipe-genie
 ```
 
-2. **Install dependencies**
+**2. Install dependencies**
 
 Frontend:
 ```bash
@@ -95,7 +95,7 @@ cd ../Backend
 npm install
 ```
 
-3. **Create `.env` files**
+**3. Create `.env` files**
 
 In `/Backend/.env`:
 
@@ -105,12 +105,12 @@ MONGO_URI=<your-mongodb-atlas-connection-string>
 JWT_SECRET=<your_jwt_secret>
 ```
 
-4. **Create uploads folder** 
+**4. Create uploads folder** 
 ```bash
 cd /Backend/uploads
 ```
 
-5. **Run the app**
+**5. Run the app**
 
 ```bash
 # In /Frontend
@@ -119,7 +119,9 @@ npm start
 # In /Backend (separate terminal)
 nodemon server.js
 ```
+
 run localhost:3000 on browser 
+
 ---
 
 ## 🔐 Environment Variables
