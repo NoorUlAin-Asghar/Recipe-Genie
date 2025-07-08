@@ -32,7 +32,8 @@
 
 ## 📷 Screenshots
 
-- Home Page with trending and followed recipes
+- ![Login Page](image.png)
+- ![Home Page with trending and followed recipes](image-1.png)![alt text](image-2.png)![alt text](image-3.png)
 - AI Chatbot interface
 - User Profile with uploaded and liked recipes
 - Recipe listing with timer and comment section
