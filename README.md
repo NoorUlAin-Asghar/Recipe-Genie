@@ -32,7 +32,7 @@
 
 ## 📷 Demo
 
-📽️ Mockup previews available in [`/mockups`](mockups/Recipe%20Genie%20Demo%20Video.mp4)
+Mockup previews available in [`/mockups`](mockups/)
 
 ---
 
