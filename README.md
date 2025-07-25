@@ -30,15 +30,9 @@
 
 ---
 
-## 📷 Screenshots
+## 📷 Demo
 
-- ![Login Page](image.png)
-- ![Home Page with trending and followed recipes](image-1.png)![alt text](image-2.png)![alt text](image-3.png)
-- AI Chatbot interface
-- User Profile with uploaded and liked recipes
-- Recipe listing with timer and comment section
-
-(Mockup previews available in `/mockups` or see deployed version if hosted)
+📽️ Mockup previews available in [`/mockups`](mockups/Recipe%20Genie%20Demo%20Video.mp4)
 
 ---
 
